@@ -1,101 +1,108 @@
-import { initializeApp } from "https://gstatic.com";
-import { getAuth, signInWithPopup, GoogleAuthProvider, OAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink, onAuthStateChanged, signOut } from "https://gstatic.com";
-import { getFirestore, doc, setDoc, getDoc, collection, addDoc, onSnapshot, query, orderBy } from "https://gstatic.com";
+// تفعيل أزرار الواجهة فوراً (حتى قبل اتصال قاعدة البيانات)
+let isPasswordVisible = false;
 
+document.getElementById("togglePassText").addEventListener("click", function () {
+    isPasswordVisible = !isPasswordVisible;
+    document.getElementById("passwordFieldContainer").style.display = isPasswordVisible ? "block" : "none";
+    document.getElementById("emailLinkBtn").style.display = isPasswordVisible ? "none" : "block";
+    this.textContent = isPasswordVisible
+        ? "العودة للدخول برابط الإيميل (Login with Email Link)"
+        : "تسجيل الدخول بكلمة المرور (Login with password)";
+});
+
+document.getElementById("themeBtn").addEventListener("click", function () {
+    document.body.classList.toggle("dark-mode");
+});
+
+// إعدادات مشروع Firebase
 const firebaseConfig = {
     apiKey: "AIzaSyD1o37KUgl6QClFLpgNejT_ZZQhw1S9fPs",
     authDomain: "://firebaseapp.com",
     projectId: "elsadaka-school",
     storageBucket: "elsadaka-school.firebasestorage.app",
     messagingSenderId: "200899599812",
-    appId: "1:200899599812:web:610e9569b886ec4d52d891",
-    measurementId: "G-97WQRLE080"
+    appId: "1:200899599812:web:610e9569b886ec4d52d891"
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
+// تشغيل Firebase
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 const ADMIN_EMAIL = "mahraban2000@gmail.com";
-let authMode = "login";
-let isPasswordVisible = false;
 
-window.setAuthMode = (mode) => { authMode = mode; };
-window.toggleTheme = () => { document.body.classList.toggle("dark-mode"); };
+// 1. الدخول بحساب Google
+document.getElementById("btnGoogleLogin").addEventListener("click", async () => {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    try {
+        const result = await auth.signInWithPopup(provider);
+        await setupUserRole(result.user);
+    } catch (error) {
+        alert("خطأ في الدخول بجوجل: " + error.message);
+    }
+});
 
-// التبديل بين زر رابط الدخول وحقل كلمة المرور
-window.togglePasswordMode = () => {
-    isPasswordVisible = !isPasswordVisible;
-    document.getElementById("passwordFieldContainer").style.display = isPasswordVisible ? "block" : "none";
-    document.getElementById("emailLinkBtn").style.display = isPasswordVisible ? "none" : "block";
-    document.getElementById("togglePassText").textContent = isPasswordVisible 
-        ? "العودة للدخول برابط الإيميل (Login with Email Link)" 
-        : "تسجيل الدخول بكلمة المرور (Login with password)";
-};
-
-// إرسال رابط الدخول السريع للإيميل (Email Me Login Link)
-window.sendMagicLink = async () => {
+// 2. إرسال رابط الدخول السريع للإيميل
+document.getElementById("emailLinkBtn").addEventListener("click", async () => {
     const email = document.getElementById("emailInput").value.trim().toLowerCase();
     if (!email) return alert("يرجى إدخال بريدك الإلكتروني أولاً!");
     const actionCodeSettings = { url: window.location.href, handleCodeInApp: true };
     try {
-        await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+        await auth.sendSignInLinkToEmail(email, actionCodeSettings);
         window.localStorage.setItem('emailForSignIn', email);
         alert("تم إرسال رابط الدخول إلى بريدك الإلكتروني! افتح بريدك واضغط على الرابط.");
-    } catch (error) { alert("خطأ: " + error.message); }
-};
+    } catch (error) {
+        alert("خطأ: " + error.message);
+    }
+});
 
-// التحقق إذا فتح المستخدم الصفحة من رابط الإيميل
-if (isSignInWithEmailLink(auth, window.location.href)) {
+// التحقق عند فتح الموقع من رابط الإيميل
+if (auth.isSignInWithEmailLink(window.location.href)) {
     let email = window.localStorage.getItem('emailForSignIn') || window.prompt('أدخل بريدك الإلكتروني للتأكيد:');
-    signInWithEmailLink(auth, email, window.location.href).then(async (result) => {
+    auth.signInWithEmailLink(email, window.location.href).then(async (result) => {
         window.localStorage.removeItem('emailForSignIn');
         await setupUserRole(result.user);
     });
 }
 
-// الدخول بجوجل
-window.loginWithGoogle = async () => {
-    try {
-        const result = await signInWithPopup(auth, new GoogleAuthProvider());
-        await setupUserRole(result.user);
-    } catch (error) { alert("خطأ في الدخول بجوجل: " + error.message); }
-};
-
-// الدخول بأبل
-window.loginWithApple = async () => {
-    try {
-        const result = await signInWithPopup(auth, new OAuthProvider('apple.com'));
-        await setupUserRole(result.user);
-    } catch (error) { alert("يتطلب حساب مطورين Apple مفعل في Firebase."); }
-};
-
-// الدخول أو إنشاء حساب بكلمة مرور
-window.handleAuthSubmit = async (e) => {
-    e.preventDefault();
+// 3. تسجيل الدخول بكلمة المرور
+document.getElementById("btnLoginPass").addEventListener("click", async () => {
     const email = document.getElementById("emailInput").value.trim().toLowerCase();
     const pass = document.getElementById("passwordInput").value;
-    if (!pass) return alert("يرجى إدخال كلمة المرور");
+    if (!email || !pass) return alert("يرجى إدخال البريد الإلكتروني وكلمة المرور");
     try {
-        const result = authMode === "signup"
-            ? await createUserWithEmailAndPassword(auth, email, pass)
-            : await signInWithEmailAndPassword(auth, email, pass);
+        const result = await auth.signInWithEmailAndPassword(email, pass);
         await setupUserRole(result.user);
-    } catch (error) { alert("خطأ: " + error.message); }
-};
+    } catch (error) {
+        alert("خطأ في الدخول: " + error.message);
+    }
+});
 
+// 4. إنشاء حساب جديد بكلمة المرور
+document.getElementById("btnSignupPass").addEventListener("click", async () => {
+    const email = document.getElementById("emailInput").value.trim().toLowerCase();
+    const pass = document.getElementById("passwordInput").value;
+    if (!email || pass.length < 6) return alert("أدخل البريد الإلكتروني وكلمة مرور من 6 أحرف على الأقل");
+    try {
+        const result = await auth.createUserWithEmailAndPassword(email, pass);
+        await setupUserRole(result.user);
+    } catch (error) {
+        alert("خطأ في إنشاء الحساب: " + error.message);
+    }
+});
+
+// حفظ وتحديد دور المستخدم
 async function setupUserRole(user) {
     const email = user.email.toLowerCase();
-    const userRef = doc(db, "users", email);
-    const userSnap = await getDoc(userRef);
-    if (!userSnap.exists()) {
+    const userRef = db.collection("users").doc(email);
+    const userSnap = await userRef.get();
+    if (!userSnap.exists) {
         const role = (email === ADMIN_EMAIL) ? "admin" : document.getElementById("selectedRole").value;
-        await setDoc(userRef, { email: email, role: role, banned: false });
+        await userRef.set({ email: email, role: role, banned: false });
     }
 }
 
-// التحكم في إظهار واجهة الدخول أو محتوى الموقع
-onAuthStateChanged(auth, async (user) => {
+// مراقبة حالة الدخول وتوجيه المستخدم
+auth.onAuthStateChanged(async (user) => {
     const loginScreen = document.getElementById("loginScreen");
     const mainApp = document.getElementById("mainAppContent");
     const bannedScreen = document.getElementById("bannedScreen");
@@ -112,8 +119,8 @@ onAuthStateChanged(auth, async (user) => {
     const email = user.email.toLowerCase();
     document.querySelectorAll(".user-email-display").forEach(el => el.textContent = email);
 
-    const userSnap = await getDoc(doc(db, "users", email));
-    const userData = userSnap.exists() ? userSnap.data() : { role: email === ADMIN_EMAIL ? "admin" : "student", banned: false };
+    const userSnap = await db.collection("users").doc(email).get();
+    const userData = userSnap.exists ? userSnap.data() : { role: email === ADMIN_EMAIL ? "admin" : "student", banned: false };
 
     if (userData.banned && email !== ADMIN_EMAIL) {
         bannedScreen.style.display = "flex";
@@ -137,44 +144,50 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 
-window.logoutUser = () => signOut(auth);
+// تسجيل الخروج
+document.getElementById("btnLogoutMain").addEventListener("click", () => auth.signOut());
+document.getElementById("btnLogoutBanned").addEventListener("click", () => auth.signOut());
 
-window.saveEvaluation = async () => {
+// وظائف المعلم والمدير
+document.getElementById("btnSaveEval").addEventListener("click", async () => {
     const studentEmail = document.getElementById("targetStudentEmail").value.trim().toLowerCase();
     const text = document.getElementById("teacherEvalText").value;
     if (!studentEmail || !text) return alert("أدخل إيميل التلميذ والتقييم");
-    await setDoc(doc(db, "evaluations", studentEmail), { text: text, updatedBy: "المعلم" });
+    await db.collection("evaluations").doc(studentEmail).set({ text: text, updatedBy: "المعلم" });
     alert("تم حفظ التقييم بنجاح!");
-};
+});
 
-window.adminUpdateEval = async () => {
+document.getElementById("btnAdminEval").addEventListener("click", async () => {
     const studentEmail = document.getElementById("adminTargetStudent").value.trim().toLowerCase();
     const text = document.getElementById("adminOverrideEval").value;
     if (!studentEmail || !text) return alert("أدخل إيميل التلميذ والتقييم");
-    await setDoc(doc(db, "evaluations", studentEmail), { text: text + " (مُعدّل بواسطة الإدارة)", updatedBy: "المدير" });
+    await db.collection("evaluations").doc(studentEmail).set({ text: text + " (مُعدّل بواسطة الإدارة)", updatedBy: "المدير" });
     alert("تم تعديل التقييم إجبارياً!");
-};
+});
 
-window.publishVideo = async () => {
+document.getElementById("btnPublishVideo").addEventListener("click", async () => {
     const title = document.getElementById("videoTitle").value;
     const url = document.getElementById("videoUrl").value;
     if (!title || !url) return alert("أدخل عنوان الفيديو ورابطه");
-    await addDoc(collection(db, "videos"), { title: title, url: url, createdAt: Date.now() });
+    await db.collection("videos").add({ title: title, url: url, createdAt: Date.now() });
     alert("تم نشر الفيديو للطلاب!");
-};
+});
 
-window.toggleBanUser = async (banStatus) => {
+async function toggleBan(banStatus) {
     const target = document.getElementById("banTargetEmail").value.trim().toLowerCase();
     if (!target || target === ADMIN_EMAIL) return alert("لا يمكن حظر هذا الحساب!");
-    await setDoc(doc(db, "users", target), { banned: banStatus }, { merge: true });
+    await db.collection("users").doc(target).set({ banned: banStatus }, { merge: true });
     alert(banStatus ? `تم حظر ${target}` : `تم فك الحظر عن ${target}`);
-};
+}
+
+document.getElementById("btnBanUser").addEventListener("click", () => toggleBan(true));
+document.getElementById("btnUnbanUser").addEventListener("click", () => toggleBan(false));
 
 function loadStudentData(email) {
-    onSnapshot(doc(db, "evaluations", email), (docSnap) => {
-        document.getElementById("studentEvaluationBox").textContent = docSnap.exists() ? docSnap.data().text : "لا يوجد تقييم حالياً.";
+    db.collection("evaluations").doc(email).onSnapshot((docSnap) => {
+        document.getElementById("studentEvaluationBox").textContent = docSnap.exists ? docSnap.data().text : "لا يوجد تقييم حالياً.";
     });
-    onSnapshot(collection(db, "videos"), (snapshot) => {
+    db.collection("videos").onSnapshot((snapshot) => {
         const list = document.getElementById("studentVideosList");
         list.innerHTML = "";
         snapshot.forEach((doc) => {
@@ -184,19 +197,27 @@ function loadStudentData(email) {
     });
 }
 
-window.sendChatMessage = async (senderRole) => {
+async function sendChat(senderRole) {
     const inputId = senderRole === "تلميذ" ? "studentMsgText" : "teacherMsgText";
     const msg = document.getElementById(inputId).value.trim();
     if (!msg) return;
-    await addDoc(collection(db, "messages"), { sender: `${senderRole} (${auth.currentUser.email})`, text: msg, timestamp: Date.now() });
+    await db.collection("messages").add({
+        sender: `${senderRole} (${auth.currentUser.email})`,
+        text: msg,
+        timestamp: Date.now()
+    });
     document.getElementById(inputId).value = "";
-};
+}
+
+document.getElementById("btnSendStudentMsg").addEventListener("click", () => sendChat("تلميذ"));
+document.getElementById("btnSendTeacherMsg").addEventListener("click", () => sendChat("المعلم"));
 
 function loadChat() {
-    const q = query(collection(db, "messages"), orderBy("timestamp"));
-    onSnapshot(q, (snapshot) => {
+    db.collection("messages").orderBy("timestamp").onSnapshot((snapshot) => {
         let html = "";
-        snapshot.forEach((doc) => { html += `<p><strong>${doc.data().sender}:</strong> ${doc.data().text}</p>`; });
+        snapshot.forEach((doc) => {
+            html += `<p><strong>${doc.data().sender}:</strong> ${doc.data().text}</p>`;
+        });
         document.getElementById("studentChatMessages").innerHTML = html;
         document.getElementById("teacherChatMessages").innerHTML = html;
     });
