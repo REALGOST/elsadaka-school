@@ -78,6 +78,7 @@
     </header>
 
     <div class="container">
+      <!-- لوحة التلميذ -->
       <div id="studentPanel" class="section" style="display: none;">
         <h2>لوحة التلميذ 🎓</h2>
         <div class="card">
@@ -89,15 +90,16 @@
           <div id="studentVideosList">جاري التحميل...</div>
         </div>
         <div class="card">
-          <h4>💬 التحدث مع المعلم</h4>
+          <h4>💬 الشات مع المدرس</h4>
           <div id="studentChatMessages" class="chat-area"></div>
           <div class="chat-input-row">
-            <input type="text" id="studentMsgText" placeholder="اكتب رسالتك للمعلم...">
+            <input type="text" id="studentMsgText" placeholder="اكتب رسالتك للمدرس...">
             <button type="button" id="btnSendStudentMsg" class="blue-primary-btn" style="width: auto;">إرسال</button>
           </div>
         </div>
       </div>
 
+      <!-- لوحة المعلم -->
       <div id="teacherPanel" class="section" style="display: none;">
         <h2>لوحة المعلم 👨‍🏫</h2>
         <div class="card">
@@ -108,15 +110,18 @@
           <button type="button" id="btnSaveEval" class="blue-primary-btn">حفظ / تعديل الدرجة والتقييم</button>
         </div>
         <div class="card">
-          <h4>💬 رسائل التلاميذ</h4>
+          <h4>💬 شات الطلاب والمدرسين</h4>
+          <input type="email" id="teacherChatStudentEmail" placeholder="اكتب إيميل الطالب لفتح شاته أو الرد عليه" dir="ltr">
+          <button type="button" id="btnOpenTeacherChat" class="secondary-signup-btn" style="margin-bottom: 10px;">عرض محادثة الطالب</button>
           <div id="teacherChatMessages" class="chat-area"></div>
           <div class="chat-input-row">
-            <input type="text" id="teacherMsgText" placeholder="اكتب ردك...">
+            <input type="text" id="teacherMsgText" placeholder="اكتب ردك للطالب...">
             <button type="button" id="btnSendTeacherMsg" class="blue-primary-btn" style="width: auto;">إرسال</button>
           </div>
         </div>
       </div>
 
+      <!-- لوحة المدير -->
       <div id="adminPanel" class="section" style="border-right-color: #c0392b; display: none;">
         <h2 style="color: #c0392b;">🛡️ لوحة المدير (المتحكم الكامل)</h2>
 
@@ -138,6 +143,17 @@
           <div class="password-actions">
             <button type="button" id="btnAdminEval" class="blue-primary-btn">تعديل الدرجة والتقييم</button>
             <button type="button" id="btnAdminDeleteEval" class="ban-btn">حذف التقييم</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h4>💬 متابعة ومراسلة الطلاب والمدرسين</h4>
+          <input type="email" id="adminChatStudentEmail" placeholder="إيميل الطالب المراد متابعة محادثته" dir="ltr">
+          <button type="button" id="btnOpenAdminChat" class="secondary-signup-btn" style="margin-bottom: 10px;">عرض المحادثة</button>
+          <div id="adminChatMessages" class="chat-area"></div>
+          <div class="chat-input-row">
+            <input type="text" id="adminMsgText" placeholder="اكتب رسالة إدارية في هذه المحادثة...">
+            <button type="button" id="btnSendAdminMsg" class="blue-primary-btn" style="width: auto;">إرسال</button>
           </div>
         </div>
 
@@ -311,11 +327,10 @@
             loadAdminVideos();
           } else if (data.role === "teacher") {
             document.getElementById("teacherPanel").style.display = "block";
-            loadChat();
           } else {
             document.getElementById("studentPanel").style.display = "block";
             loadStudentData(email);
-            loadChat();
+            listenToChatRoom(email, "studentChatMessages");
           }
         });
       });
@@ -461,13 +476,53 @@
       });
     }
 
-    function sendChatMessage(role) {
-      if (!auth || !auth.currentUser) return;
-      var inputId = role === "تلميذ" ? "studentMsgText" : "teacherMsgText";
+    var unsubscribeChat = null;
+
+    function listenToChatRoom(studentEmail, boxId) {
+      if (!db || !studentEmail) return;
+      var cleanStudent = studentEmail.trim().toLowerCase();
+      if (unsubscribeChat) unsubscribeChat();
+
+      unsubscribeChat = db.collection("messages")
+        .where("studentEmail", "==", cleanStudent)
+        .onSnapshot(function (snap) {
+          var items = [];
+          snap.forEach(function (docSnap) {
+            items.push(docSnap.data());
+          });
+          items.sort(function (a, b) {
+            return (a.timestamp || 0) - (b.timestamp || 0);
+          });
+
+          var box = document.getElementById(boxId);
+          if (!box) return;
+          box.innerHTML = "";
+          if (items.length === 0) {
+            box.textContent = "لا توجد رسائل في هذه المحادثة بعد.";
+            return;
+          }
+          items.forEach(function (m) {
+            var timeStr = m.timestamp ? new Date(m.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "";
+            var div = document.createElement("div");
+            div.style.cssText = "padding:6px 8px; margin-bottom:6px; border-radius:6px; background:rgba(0,102,255,0.06);";
+            div.innerHTML = "<strong>" + (m.senderLabel || "مستخدم") + "</strong> <small style='opacity:0.7;'>" + timeStr + "</small><div>" + (m.text || "") + "</div>";
+            box.appendChild(div);
+          });
+          box.scrollTop = box.scrollHeight;
+        });
+    }
+
+    function sendChatMessage(roleLabel, studentEmail, inputId) {
+      if (!db || !auth || !auth.currentUser) return;
+      var cleanStudent = (studentEmail || "").trim().toLowerCase();
       var msg = document.getElementById(inputId).value.trim();
+      if (!cleanStudent) return alert("اكتب إيميل الطالب أولاً!");
       if (!msg) return;
+
       db.collection("messages").add({
-        sender: role + " (" + auth.currentUser.email + ")",
+        studentEmail: cleanStudent,
+        senderEmail: auth.currentUser.email.toLowerCase(),
+        senderLabel: roleLabel + " (" + auth.currentUser.email + ")",
         text: msg,
         timestamp: Date.now()
       }).then(function () {
@@ -475,20 +530,34 @@
       });
     }
 
-    document.getElementById("btnSendStudentMsg").addEventListener("click", function () { sendChatMessage("تلميذ"); });
-    document.getElementById("btnSendTeacherMsg").addEventListener("click", function () { sendChatMessage("المعلم"); });
+    document.getElementById("btnSendStudentMsg").addEventListener("click", function () {
+      if (!auth || !auth.currentUser) return;
+      sendChatMessage("تلميذ", auth.currentUser.email, "studentMsgText");
+    });
 
-    function loadChat() {
-      db.collection("messages").orderBy("timestamp").onSnapshot(function (snap) {
-        var html = "";
-        snap.forEach(function (docSnap) {
-          var m = docSnap.data();
-          html += "<p><strong>" + m.sender + ":</strong> " + m.text + "</p>";
-        });
-        document.getElementById("studentChatMessages").innerHTML = html;
-        document.getElementById("teacherChatMessages").innerHTML = html;
-      });
-    }
+    document.getElementById("btnOpenTeacherChat").addEventListener("click", function () {
+      var stEmail = document.getElementById("teacherChatStudentEmail").value.trim().toLowerCase();
+      if (!stEmail) return alert("اكتب إيميل الطالب أولاً!");
+      listenToChatRoom(stEmail, "teacherChatMessages");
+    });
+
+    document.getElementById("btnSendTeacherMsg").addEventListener("click", function () {
+      var stEmail = document.getElementById("teacherChatStudentEmail").value.trim().toLowerCase();
+      listenToChatRoom(stEmail, "teacherChatMessages");
+      sendChatMessage("معلم", stEmail, "teacherMsgText");
+    });
+
+    document.getElementById("btnOpenAdminChat").addEventListener("click", function () {
+      var stEmail = document.getElementById("adminChatStudentEmail").value.trim().toLowerCase();
+      if (!stEmail) return alert("اكتب إيميل الطالب أولاً!");
+      listenToChatRoom(stEmail, "adminChatMessages");
+    });
+
+    document.getElementById("btnSendAdminMsg").addEventListener("click", function () {
+      var stEmail = document.getElementById("adminChatStudentEmail").value.trim().toLowerCase();
+      listenToChatRoom(stEmail, "adminChatMessages");
+      sendChatMessage("مدير", stEmail, "adminMsgText");
+    });
   </script>
 </body>
 </html>
