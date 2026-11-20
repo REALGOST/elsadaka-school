@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدرسة الصداقة المصرية الأذربيجانية الرسمية للغات</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- 1. واجهة تسجيل الدخول الرئيسية (تظهر أول ما يفتح الموقع) -->
+    <div id="loginScreen" class="login-wrapper">
+        <div class="login-header-text">
+            <h1>تسجيل الدخول أو إنشاء حساب</h1>
+            <p>مدرسة الصداقة المصرية الأذربيجانية الرسمية للغات</p>
+        </div>
+
+        <div class="login-card">
+            <!-- اختيار الصفة للحسابات الجديدة -->
+            <div class="role-box">
+                <label>الصفة (للمستخدمين الجدد):</label>
+                <select id="selectedRole">
+                    <option value="student">تلميذ 🎓</option>
+                    <option value="teacher">معلم 👨‍🏫</option>
+                </select>
+            </div>
+
+            <!-- نموذج البريد الإلكتروني -->
+            <form onsubmit="handleAuthSubmit(event)">
+                <input type="email" id="emailInput" required placeholder="أدخل بريدك الإلكتروني (example@gmail.com)" dir="ltr">
+                
+                <!-- حقل كلمة المرور (يظهر عند الضغط على الدخول بكلمة المرور) -->
+                <div id="passwordFieldContainer" style="display:none;">
+                    <input type="password" id="passwordInput" placeholder="أدخل كلمة المرور" dir="ltr">
+                    <div class="password-actions">
+                        <button type="submit" onclick="setAuthMode('login')" class="blue-primary-btn">دخول</button>
+                        <button type="submit" onclick="setAuthMode('signup')" class="secondary-signup-btn">حساب جديد</button>
+                    </div>
+                </div>
+
+                <!-- الزر الأزرق الرئيسي لإرسال رابط الدخول -->
+                <button type="button" id="emailLinkBtn" onclick="sendMagicLink()" class="blue-primary-btn">
+                    أرسل لي رابط الدخول (Email Me Login Link)
+                </button>
+            </form>
+
+            <!-- رابط التبديل للدخول بكلمة المرور -->
+            <div class="toggle-pass-link">
+                <a href="javascript:void(0)" id="togglePassText" onclick="togglePasswordMode()">تسجيل الدخول بكلمة المرور (Login with password)</a>
+            </div>
+
+            <div class="or-divider"><span>أو الدخول السريع عبر</span></div>
+
+            <!-- زر تسجيل الدخول بحساب Google عريض وواضح -->
+            <div class="social-icons-row" style="flex-direction: column;">
+                <button type="button" class="social-icon-btn" onclick="loginWithGoogle()" style="width: 100%; gap: 10px; font-weight: bold; color: #333; font-size: 15px;">
+                    <img src="https://gstatic.com" alt="Google">
+                    <span>الدخول السريع بحساب Google</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. شاشة الحظر (تظهر للمحظورين فقط) -->
+    <div id="bannedScreen" class="login-wrapper" style="display:none;">
+        <div class="login-card" style="border-top: 5px solid #c0392b; text-align:center;">
+            <h2 style="color:#c0392b;">⛔ تم حظر حسابك (Banned)</h2>
+            <p>تم إيقاف هذا الحساب من قبل إدارة المدرسة.</p>
+            <button class="blue-primary-btn" onclick="logoutUser()">تسجيل الخروج</button>
+        </div>
+    </div>
+
+    <!-- 3. محتوى المدرسة ولوحات التحكم (تظهر تلقائياً بعد تسجيل الدخول) -->
+    <div id="mainAppContent" style="display:none;">
+        <header>
+            <h1>مدرسة الصداقة المصرية الأذربيجانية الرسمية للغات</h1>
+            <p>مرحباً بك: <span class="user-email-display" style="font-weight:bold; color:#f1c40f;"></span></p>
+            <div class="header-actions">
+                <button id="themeBtn" onclick="toggleTheme()">🌙 الوضع الليلي</button>
+                <button class="logout-btn" onclick="logoutUser()">تسجيل الخروج</button>
+            </div>
+        </header>
+
+        <div class="container">
+            <!-- لوحة التلميذ -->
+            <div id="studentPanel" class="section" style="display:none;">
+                <h2>لوحة التلميذ 🎓</h2>
+                <div class="card">
+                    <h4>📊 تقييمك وملاحظات المعلم:</h4>
+                    <div id="studentEvaluationBox" class="eval-display">جاري تحميل التقييم...</div>
+                </div>
+                <div class="card">
+                    <h4>🎥 الفيديوهات التعليمية:</h4>
+                    <div id="studentVideosList">جاري التحميل...</div>
+                </div>
+                <div class="card">
+                    <h4>💬 التحدث مع المعلم:</h4>
+                    <div id="studentChatMessages" class="chat-area"></div>
+                    <div class="chat-input-row">
+                        <input type="text" id="studentMsgText" placeholder="اكتب رسالتك للمعلم...">
+                        <button onclick="sendChatMessage('تلميذ')" class="blue-primary-btn" style="width:auto;">إرسال</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- لوحة المعلم -->
+            <div id="teacherPanel" class="section" style="display:none;">
+                <h2>لوحة المعلم 👨‍🏫</h2>
+                <div class="card">
+                    <h4>📝 تقييم التلميذ:</h4>
+                    <input type="email" id="targetStudentEmail" placeholder="إيميل التلميذ المراد تقييمه" dir="ltr">
+                    <textarea id="teacherEvalText" rows="3" placeholder="اكتب التقييم والدرجة..."></textarea>
+                    <button onclick="saveEvaluation()" class="blue-primary-btn">حفظ التقييم</button>
+                </div>
+                <div class="card">
+                    <h4>💬 رسائل التلاميذ:</h4>
+                    <div id="teacherChatMessages" class="chat-area"></div>
+                    <div class="chat-input-row">
+                        <input type="text" id="teacherMsgText" placeholder="اكتب ردك...">
+                        <button onclick="sendChatMessage('المعلم')" class="blue-primary-btn" style="width:auto;">إرسال</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- لوحة المدير (المتحكم الكامل) -->
+            <div id="adminPanel" class="section" style="border-right-color: #c0392b; display:none;">
+                <h2 style="color:#c0392b;">🛡️ لوحة المدير (المتحكم الكامل)</h2>
+                <div class="card">
+                    <h4>🎬 نشر فيديو تعليمي للطلاب:</h4>
+                    <input type="text" id="videoTitle" placeholder="عنوان الدرس">
+                    <input type="url" id="videoUrl" placeholder="رابط الفيديو (YouTube / Drive)" dir="ltr">
+                    <button onclick="publishVideo()" class="blue-primary-btn">نشر الفيديو</button>
+                </div>
+                <div class="card">
+                    <h4>✏️ تعديل تقييم المعلم لأي تلميذ:</h4>
+                    <input type="email" id="adminTargetStudent" placeholder="إيميل التلميذ" dir="ltr">
+                    <textarea id="adminOverrideEval" rows="2" placeholder="اكتب التقييم المعدّل..."></textarea>
+                    <button onclick="adminUpdateEval()" class="blue-primary-btn">تعديل التقييم</button>
+                </div>
+                <div class="card">
+                    <h4>🚫 حظر مستخدم (Ban) أو فك الحظر:</h4>
+                    <input type="email" id="banTargetEmail" placeholder="أدخل إيميل المستخدم" dir="ltr">
+                    <div class="password-actions">
+                        <button onclick="toggleBanUser(true)" class="ban-btn">حظر (Ban)</button>
+                        <button onclick="toggleBanUser(false)" class="unban-btn">فك الحظر</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- معلومات المدرسة -->
+            <div class="section">
+                <h2>عن المدرسة</h2>
+                <p>تعد <strong>مدرسة الصداقة المصرية الأذربيجانية الرسمية للغات</strong> بمدينة العبور نموذجاً رائداً للتعاون التعليمي والثقافي المشترك بين مصر وأذربيجان.</p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
