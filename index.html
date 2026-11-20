@@ -91,6 +91,7 @@
         </div>
         <div class="card">
           <h4>💬 الشات مع المدرس</h4>
+          <input type="text" id="studentDisplayName" placeholder="اسمك (اختياري، مثلاً: يوسف)">
           <div id="studentChatMessages" class="chat-area"></div>
           <div class="chat-input-row">
             <input type="text" id="studentMsgText" placeholder="اكتب رسالتك للمدرس...">
@@ -111,6 +112,7 @@
         </div>
         <div class="card">
           <h4>💬 شات الطلاب والمدرسين</h4>
+          <input type="text" id="teacherDisplayName" placeholder="اسمك (اختياري، مثلاً: أ/ محمود)">
           <input type="email" id="teacherChatStudentEmail" placeholder="اكتب إيميل الطالب لفتح شاته أو الرد عليه" dir="ltr">
           <button type="button" id="btnOpenTeacherChat" class="secondary-signup-btn" style="margin-bottom: 10px;">عرض محادثة الطالب</button>
           <div id="teacherChatMessages" class="chat-area"></div>
@@ -148,6 +150,7 @@
 
         <div class="card">
           <h4>💬 متابعة ومراسلة الطلاب والمدرسين</h4>
+          <input type="text" id="adminDisplayName" placeholder="اسمك (اختياري، مثلاً: الإدارة)">
           <input type="email" id="adminChatStudentEmail" placeholder="إيميل الطالب المراد متابعة محادثته" dir="ltr">
           <button type="button" id="btnOpenAdminChat" class="secondary-signup-btn" style="margin-bottom: 10px;">عرض المحادثة</button>
           <div id="adminChatMessages" class="chat-area"></div>
@@ -169,7 +172,7 @@
 
       <div class="section">
         <h2>عن المدرسة</h2>
-        <p>تعد <strong>مدرسة الصداقة المصرية الأذربيجانية الرسمية للغات</strong> بمدينة العبور نموذجاً رائداً للتعاون التعليمي والثقافي المشترك بين مصر وأذربيجان.</p>
+        <p>تعد <strong>مدرسة الصداقة المصرية الأذربيجانية الرسمية للغات</strong> بمدينة العبور نموذجاً رائداً للتعاون التعليمي والثقافي المشترك بين مصر وأذربيجان[cite: 1].</p>
       </div>
     </div>
   </div>
@@ -503,26 +506,29 @@
           }
           items.forEach(function (m) {
             var timeStr = m.timestamp ? new Date(m.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "";
+            var labelText = m.senderName || m.roleLabel || "مستخدم";
             var div = document.createElement("div");
             div.style.cssText = "padding:6px 8px; margin-bottom:6px; border-radius:6px; background:rgba(0,102,255,0.06);";
-            div.innerHTML = "<strong>" + (m.senderLabel || "مستخدم") + "</strong> <small style='opacity:0.7;'>" + timeStr + "</small><div>" + (m.text || "") + "</div>";
+            div.innerHTML = "<strong>" + labelText + "</strong> <small style='opacity:0.7;'>" + timeStr + "</small><div>" + (m.text || "") + "</div>";
             box.appendChild(div);
           });
           box.scrollTop = box.scrollHeight;
         });
     }
 
-    function sendChatMessage(roleLabel, studentEmail, inputId) {
+    function sendChatMessage(roleLabel, studentEmail, inputId, nameInputId) {
       if (!db || !auth || !auth.currentUser) return;
       var cleanStudent = (studentEmail || "").trim().toLowerCase();
+      var customName = nameInputId ? document.getElementById(nameInputId).value.trim() : "";
+      var senderName = customName ? (customName + " — " + roleLabel) : roleLabel;
       var msg = document.getElementById(inputId).value.trim();
       if (!cleanStudent) return alert("اكتب إيميل الطالب أولاً!");
       if (!msg) return;
 
       db.collection("messages").add({
         studentEmail: cleanStudent,
-        senderEmail: auth.currentUser.email.toLowerCase(),
-        senderLabel: roleLabel + " (" + auth.currentUser.email + ")",
+        roleLabel: roleLabel,
+        senderName: senderName,
         text: msg,
         timestamp: Date.now()
       }).then(function () {
@@ -532,7 +538,7 @@
 
     document.getElementById("btnSendStudentMsg").addEventListener("click", function () {
       if (!auth || !auth.currentUser) return;
-      sendChatMessage("تلميذ", auth.currentUser.email, "studentMsgText");
+      sendChatMessage("تلميذ", auth.currentUser.email, "studentMsgText", "studentDisplayName");
     });
 
     document.getElementById("btnOpenTeacherChat").addEventListener("click", function () {
@@ -544,7 +550,7 @@
     document.getElementById("btnSendTeacherMsg").addEventListener("click", function () {
       var stEmail = document.getElementById("teacherChatStudentEmail").value.trim().toLowerCase();
       listenToChatRoom(stEmail, "teacherChatMessages");
-      sendChatMessage("معلم", stEmail, "teacherMsgText");
+      sendChatMessage("معلم", stEmail, "teacherMsgText", "teacherDisplayName");
     });
 
     document.getElementById("btnOpenAdminChat").addEventListener("click", function () {
@@ -556,7 +562,7 @@
     document.getElementById("btnSendAdminMsg").addEventListener("click", function () {
       var stEmail = document.getElementById("adminChatStudentEmail").value.trim().toLowerCase();
       listenToChatRoom(stEmail, "adminChatMessages");
-      sendChatMessage("مدير", stEmail, "adminMsgText");
+      sendChatMessage("مدير", stEmail, "adminMsgText", "adminDisplayName");
     });
   </script>
 </body>
