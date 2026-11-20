@@ -313,8 +313,8 @@
         <div id="adminPanel" style="display: none;">
           <div class="ischool-card" style="border-right: 4px solid #dc2626;">
             <h2 style="color: #dc2626;">🛡️ لوحة المدير (فريق الإدارة)</h2>
-            <p style="color: var(--ischool-muted); font-size: 14px;">
-              الأدمن المسجلون: مهران • أحمد • مريم • يوسف • سارة
+            <p id="adminsRosterText" style="color: var(--ischool-muted); font-size: 14px;">
+              الأدمن المسجلون: أحمد • مريم • يوسف • سارة
             </p>
           </div>
 
@@ -361,12 +361,12 @@
         </div>
       </div>
 
-      <!-- تبويب الشات الخاص (لا يراه إلا الطرفان المتحدثان+) -->
+      <!-- تبويب الشات الخاص -->
       <div id="tabPrivateChat" class="platform-tab" style="display: none;">
         <div class="ischool-card">
           <h3>🔒 شات خاص بين شخصين</h3>
           <p style="color: var(--ischool-muted); font-size: 13px;">
-          <strong>شات خاص ما بينك انت و الي بتكلمو بس</strong>، .
+            هذه المحادثة خاصة جداً ولا يراها إلا الطرفان المشاركان فيها، مع بقاء صلاحية المراجعة الكاملة للحساب الرئيسي.
           </p>
 
           <label>اختر الشخص الذي تريد التحدث معه:</label>
@@ -430,7 +430,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
   <script>
-    // إظهار / إخفاء كلمة المرور عند الكتابة
     var passInputEl = document.getElementById("passwordInput");
     document.getElementById("btnTogglePasswordVisibility").addEventListener("click", function () {
       var isPass = passInputEl.getAttribute("type") === "password";
@@ -438,7 +437,6 @@
       this.textContent = isPass ? "🙈" : "👁️";
     });
 
-    // تبديل وضع رابط الإيميل
     var passVisible = true;
     document.getElementById("togglePassText").addEventListener("click", function () {
       passVisible = !passVisible;
@@ -449,12 +447,10 @@
         : "تسجيل الدخول بكلمة المرور (Login with password)";
     });
 
-    // الوضع الليلي
     document.getElementById("themeBtn").addEventListener("click", function () {
       document.body.classList.toggle("dark-mode");
     });
 
-    // تنقل التبويبات بأسلوب iSchool
     document.querySelectorAll(".ischool-tab-btn[data-tab]").forEach(function (btn) {
       btn.addEventListener("click", function () {
         var targetTab = btn.getAttribute("data-tab");
@@ -473,7 +469,6 @@
 
     var SUPER_OWNER_EMAIL = "mahraban2000@gmail.com";
 
-    // 5 حسابات أدمن مع أسمائهم (المالك + 4 أدمن بينهم 3 حسابات مضافة جديدة بأسمائهم)
     var ADMINS_CONFIG = [
       { email: "mahraban2000@gmail.com", name: "مهران" },
       { email: "admin2.elsadaka@gmail.com", name: "أحمد" },
@@ -486,14 +481,32 @@
       return a.email.trim().toLowerCase();
     });
 
+    function isSuperOwner(email) {
+      if (!email) return false;
+      return email.trim().toLowerCase() === SUPER_OWNER_EMAIL.toLowerCase();
+    }
+
+    function isHiddenFromOthers(email, currentViewerEmail) {
+      if (!email) return false;
+      var cleanTarget = email.trim().toLowerCase();
+      var cleanViewer = (currentViewerEmail || "").trim().toLowerCase();
+      return cleanTarget === SUPER_OWNER_EMAIL.toLowerCase() && cleanViewer !== SUPER_OWNER_EMAIL.toLowerCase();
+    }
+
     function isAdminEmail(email) {
       if (!email) return false;
       return ADMIN_EMAILS.indexOf(email.trim().toLowerCase()) !== -1;
     }
 
-    function getAdminName(email) {
+    function resolveEffectiveRole(email, dbRole) {
+      if (isAdminEmail(email)) return "admin";
+      return dbRole === "teacher" ? "teacher" : "student";
+    }
+
+    function getAdminName(email, currentViewerEmail) {
       if (!email) return "";
       var clean = email.trim().toLowerCase();
+      if (isHiddenFromOthers(clean, currentViewerEmail)) return "";
       for (var i = 0; i < ADMINS_CONFIG.length; i++) {
         if (ADMINS_CONFIG[i].email.toLowerCase() === clean) {
           return ADMINS_CONFIG[i].name;
@@ -518,7 +531,7 @@
       console.error("Firebase init error:", err);
     }
 
-    function fillSelectOptions(selectId, emails, placeholderText) {
+    function fillSelectOptions(selectId, emails, placeholderText, currentViewerEmail) {
       var sel = document.getElementById(selectId);
       if (!sel) return;
       var currentVal = sel.value;
@@ -529,14 +542,15 @@
       sel.appendChild(opt0);
 
       emails.forEach(function (em) {
+        if (isHiddenFromOthers(em, currentViewerEmail)) return;
         var opt = document.createElement("option");
         opt.value = em;
-        var admName = getAdminName(em);
+        var admName = getAdminName(em, currentViewerEmail);
         opt.textContent = admName ? (em + " (" + admName + " — أدمن)") : em;
         sel.appendChild(opt);
       });
 
-      if (currentVal && emails.indexOf(currentVal) !== -1) {
+      if (currentVal && emails.indexOf(currentVal) !== -1 && !isHiddenFromOthers(currentVal, currentViewerEmail)) {
         sel.value = currentVal;
       }
     }
@@ -561,43 +575,61 @@
     });
     bindSelectToInput("callTargetSelect", "callTargetEmail");
 
-    function loadUsersLists() {
+    function loadUsersLists(currentViewerEmail) {
       if (!db) return;
+      var viewer = (currentViewerEmail || (auth && auth.currentUser && auth.currentUser.email) || "").toLowerCase();
+
+      var rosterEl = document.getElementById("adminsRosterText");
+      if (rosterEl) {
+        rosterEl.textContent = isSuperOwner(viewer)
+          ? "الأدمن المسجلون: مهران • أحمد • مريم • يوسف • سارة"
+          : "الأدمن المسجلون: أحمد • مريم • يوسف • سارة";
+      }
+
       db.collection("users").onSnapshot(function (snap) {
         var studentEmails = [];
         var allEmails = [];
         ADMIN_EMAILS.forEach(function (ae) {
-          if (allEmails.indexOf(ae) === -1) allEmails.push(ae);
+          if (!isHiddenFromOthers(ae, viewer) && allEmails.indexOf(ae) === -1) {
+            allEmails.push(ae);
+          }
         });
 
         snap.forEach(function (docSnap) {
           var d = docSnap.data() || {};
           var em = (d.email || docSnap.id || "").trim().toLowerCase();
-          if (!em) return;
+          if (!em || isHiddenFromOthers(em, viewer)) return;
+          var effRole = resolveEffectiveRole(em, d.role);
           if (allEmails.indexOf(em) === -1) allEmails.push(em);
-          if (d.role === "student" && !isAdminEmail(em) && studentEmails.indexOf(em) === -1) {
+          if (effRole === "student" && studentEmails.indexOf(em) === -1) {
             studentEmails.push(em);
           }
         });
 
-        fillSelectOptions("teacherEvalStudentSelect", studentEmails, "-- اختر طالب من القائمة أو اكتب إيميله بالأسفل --");
-        fillSelectOptions("adminEvalStudentSelect", studentEmails, "-- اختر طالب من القائمة أو اكتب إيميله بالأسفل --");
-        fillSelectOptions("adminBanUserSelect", allEmails, "-- اختر مستخدم من القائمة أو اكتب إيميله بالأسفل --");
-        fillSelectOptions("privateChatTargetSelect", allEmails, "-- اختر حساباً للتحدث معه في شات خاص --");
-        fillSelectOptions("callTargetSelect", allEmails, "-- اختر حساباً للاتصال به صوت أو فيديو --");
+        fillSelectOptions("teacherEvalStudentSelect", studentEmails, "-- اختر طالب من القائمة أو اكتب إيميله بالأسفل --", viewer);
+        fillSelectOptions("adminEvalStudentSelect", studentEmails, "-- اختر طالب من القائمة أو اكتب إيميله بالأسفل --", viewer);
+        fillSelectOptions("adminBanUserSelect", allEmails, "-- اختر مستخدم من القائمة أو اكتب إيميله بالأسفل --", viewer);
+        fillSelectOptions("privateChatTargetSelect", allEmails, "-- اختر حساباً للتحدث معه في شات خاص --", viewer);
+        fillSelectOptions("callTargetSelect", allEmails, "-- اختر حساباً للاتصال به صوت أو فيديو --", viewer);
       });
     }
 
     function checkAndSaveRole(user) {
       if (!db || !user || !user.email) return;
       var email = user.email.trim().toLowerCase();
+      var chosenRole = document.getElementById("selectedRole").value === "teacher" ? "teacher" : "student";
       var ref = db.collection("users").doc(email);
       ref.get().then(function (docSnap) {
         if (!docSnap.exists) {
-          var role = isAdminEmail(email) ? "admin" : document.getElementById("selectedRole").value;
+          var role = isAdminEmail(email) ? "admin" : chosenRole;
           ref.set({ email: email, role: role, banned: false });
-        } else if (isAdminEmail(email) && docSnap.data().role !== "admin") {
-          ref.set({ role: "admin", banned: false }, { merge: true });
+        } else {
+          var existingData = docSnap.data() || {};
+          if (isAdminEmail(email) && existingData.role !== "admin") {
+            ref.set({ role: "admin", banned: false }, { merge: true });
+          } else if (!isAdminEmail(email) && existingData.role === "admin") {
+            ref.set({ role: chosenRole }, { merge: true });
+          }
         }
       });
     }
@@ -673,8 +705,13 @@
 
         db.collection("users").doc(email).get().then(function (docSnap) {
           var adminUser = isAdminEmail(email);
-          var adminName = getAdminName(email);
+          var adminName = getAdminName(email, email);
           var data = docSnap.exists ? docSnap.data() : { role: adminUser ? "admin" : "student", banned: false };
+          var effectiveRole = resolveEffectiveRole(email, data.role);
+
+          if (!adminUser && data.role === "admin") {
+            db.collection("users").doc(email).set({ role: effectiveRole }, { merge: true });
+          }
 
           if (data.banned && !adminUser) {
             document.getElementById("bannedScreen").style.display = "flex";
@@ -686,11 +723,11 @@
           document.getElementById("teacherPanel").style.display = "none";
           document.getElementById("adminPanel").style.display = "none";
 
-          if (adminUser || data.role === "admin") {
+          if (effectiveRole === "admin") {
             document.getElementById("currentUserRoleBadge").textContent = adminName ? ("مدير (" + adminName + ")") : "مدير";
             document.getElementById("adminPanel").style.display = "block";
             loadAdminVideos();
-          } else if (data.role === "teacher") {
+          } else if (effectiveRole === "teacher") {
             document.getElementById("currentUserRoleBadge").textContent = "معلم";
             document.getElementById("teacherPanel").style.display = "block";
           } else {
@@ -699,7 +736,7 @@
             loadStudentData(email);
           }
 
-          loadUsersLists();
+          loadUsersLists(email);
           listenForIncomingCalls(email);
         });
       });
@@ -712,7 +749,6 @@
     document.getElementById("btnLogoutMain").addEventListener("click", logoutNow);
     document.getElementById("btnLogoutBanned").addEventListener("click", logoutNow);
 
-    // الدرجات والتقييمات
     document.getElementById("btnSaveEval").addEventListener("click", function () {
       var st = document.getElementById("targetStudentEmail").value.trim().toLowerCase();
       var grade = document.getElementById("teacherGradeInput").value.trim();
@@ -753,7 +789,6 @@
       });
     });
 
-    // الفيديوهات
     document.getElementById("btnPublishVideo").addEventListener("click", function () {
       var title = document.getElementById("videoTitle").value.trim();
       var url = document.getElementById("videoUrl").value.trim();
@@ -847,7 +882,6 @@
       });
     }
 
-    // الشات الخاص: يراه فقط الطرفان المتحدثان + mahraban2000@gmail.com
     var unsubscribePrivateChat = null;
     var activePrivateTarget = "";
 
@@ -934,7 +968,7 @@
 
       var me = auth.currentUser.email.toLowerCase();
       var customName = document.getElementById("privateChatSenderName").value.trim();
-      var adminFixedName = getAdminName(me);
+      var adminFixedName = getAdminName(me, me);
       var displayName = customName || (adminFixedName ? (adminFixedName + " — أدمن") : me.split("@")[0]);
 
       var participants = [me, target];
@@ -955,7 +989,6 @@
       });
     });
 
-    // المكالمات الصوتية والفيديو عبر WebRTC + Firestore
     var peerConnection = null;
     var localStream = null;
     var activeCallDocId = null;
@@ -1083,7 +1116,8 @@
             if (d && d.status === "ringing" && d.offer && !d.answer) {
               pendingOfferData = { id: docSnap.id, data: d };
               document.getElementById("btnAnswerCall").style.display = "inline-block";
-              setCallStatus("مكالمة واردة من " + d.caller + (d.withVideo ? " (فيديو)" : " (صوتية)"));
+              var callerLabel = isHiddenFromOthers(d.caller, myEmail) ? "مستخدم" : d.caller;
+              setCallStatus("مكالمة واردة من " + callerLabel + (d.withVideo ? " (فيديو)" : " (صوتية)"));
             }
           });
         });
@@ -1110,7 +1144,9 @@
           status: "connected"
         });
 
-        setCallStatus("متصل الآن مع " + info.caller);
+        var myEmail = auth && auth.currentUser ? auth.currentUser.email : "";
+        var callerLabel = isHiddenFromOthers(info.caller, myEmail) ? "مستخدم" : info.caller;
+        setCallStatus("متصل الآن مع " + callerLabel);
       } catch (err) {
         setCallStatus("خطأ أثناء الرد: " + err.message);
       }
