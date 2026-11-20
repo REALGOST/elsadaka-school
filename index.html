@@ -105,6 +105,9 @@
         <h2>لوحة المعلم 👨‍🏫</h2>
         <div class="card">
           <h4>📝 إضافة أو تعديل درجة وتقييم التلميذ</h4>
+          <select id="teacherEvalStudentSelect" class="student-dropdown">
+            <option value="">-- اختر طالب من القائمة أو اكتب إيميله بالأسفل --</option>
+          </select>
           <input type="email" id="targetStudentEmail" placeholder="إيميل التلميذ المراد تقييمه" dir="ltr">
           <input type="text" id="teacherGradeInput" placeholder="الدرجة (مثال: 95/100 أو ممتاز)">
           <textarea id="teacherEvalText" rows="3" placeholder="اكتب ملاحظاتك وتقييمك..."></textarea>
@@ -113,7 +116,10 @@
         <div class="card">
           <h4>💬 شات الطلاب والمدرسين</h4>
           <input type="text" id="teacherDisplayName" placeholder="اسمك (اختياري، مثلاً: أ/ محمود)">
-          <input type="email" id="teacherChatStudentEmail" placeholder="اكتب إيميل الطالب لفتح شاته أو الرد عليه" dir="ltr">
+          <select id="teacherChatStudentSelect" class="student-dropdown">
+            <option value="">-- اختر طالب لفتح شاته أو اكتب إيميله بالأسفل --</option>
+          </select>
+          <input type="email" id="teacherChatStudentEmail" placeholder="إيميل الطالب لفتح شاته أو الرد عليه" dir="ltr">
           <button type="button" id="btnOpenTeacherChat" class="secondary-signup-btn" style="margin-bottom: 10px;">عرض محادثة الطالب</button>
           <div id="teacherChatMessages" class="chat-area"></div>
           <div class="chat-input-row">
@@ -139,6 +145,9 @@
 
         <div class="card">
           <h4>✏️ تعديل درجة وتقييم المعلم لأي تلميذ</h4>
+          <select id="adminEvalStudentSelect" class="student-dropdown">
+            <option value="">-- اختر طالب من القائمة أو اكتب إيميله بالأسفل --</option>
+          </select>
           <input type="email" id="adminTargetStudent" placeholder="إيميل التلميذ" dir="ltr">
           <input type="text" id="adminGradeInput" placeholder="الدرجة الجديدة (مثال: 98/100)">
           <textarea id="adminOverrideEval" rows="2" placeholder="اكتب التقييم المعدّل..."></textarea>
@@ -151,6 +160,9 @@
         <div class="card">
           <h4>💬 متابعة ومراسلة الطلاب والمدرسين</h4>
           <input type="text" id="adminDisplayName" placeholder="اسمك (اختياري، مثلاً: الإدارة)">
+          <select id="adminChatStudentSelect" class="student-dropdown">
+            <option value="">-- اختر طالب لفتح شاته أو اكتب إيميله بالأسفل --</option>
+          </select>
           <input type="email" id="adminChatStudentEmail" placeholder="إيميل الطالب المراد متابعة محادثته" dir="ltr">
           <button type="button" id="btnOpenAdminChat" class="secondary-signup-btn" style="margin-bottom: 10px;">عرض المحادثة</button>
           <div id="adminChatMessages" class="chat-area"></div>
@@ -162,6 +174,9 @@
 
         <div class="card">
           <h4>🚫 حظر مستخدم (Ban) أو فك الحظر</h4>
+          <select id="adminBanUserSelect" class="student-dropdown">
+            <option value="">-- اختر مستخدم من القائمة أو اكتب إيميله بالأسفل --</option>
+          </select>
           <input type="email" id="banTargetEmail" placeholder="أدخل إيميل المستخدم" dir="ltr">
           <div class="password-actions">
             <button type="button" id="btnBanUser" class="ban-btn">حظر (Ban)</button>
@@ -226,6 +241,73 @@
       db = firebase.firestore();
     } catch (err) {
       console.error("Firebase init error:", err);
+    }
+
+    function fillSelectOptions(selectId, emails, placeholderText) {
+      var sel = document.getElementById(selectId);
+      if (!sel) return;
+      var currentVal = sel.value;
+      sel.innerHTML = "";
+      var opt0 = document.createElement("option");
+      opt0.value = "";
+      opt0.textContent = placeholderText;
+      sel.appendChild(opt0);
+
+      emails.forEach(function (em) {
+        var opt = document.createElement("option");
+        opt.value = em;
+        opt.textContent = em;
+        sel.appendChild(opt);
+      });
+
+      if (currentVal && emails.indexOf(currentVal) !== -1) {
+        sel.value = currentVal;
+      }
+    }
+
+    function bindSelectToInput(selectId, inputId, onPickCallback) {
+      var sel = document.getElementById(selectId);
+      var inp = document.getElementById(inputId);
+      if (!sel || !inp) return;
+      sel.addEventListener("change", function () {
+        if (sel.value) {
+          inp.value = sel.value;
+          if (typeof onPickCallback === "function") onPickCallback(sel.value);
+        }
+      });
+    }
+
+    bindSelectToInput("teacherEvalStudentSelect", "targetStudentEmail");
+    bindSelectToInput("teacherChatStudentSelect", "teacherChatStudentEmail", function (em) {
+      listenToChatRoom(em, "teacherChatMessages");
+    });
+    bindSelectToInput("adminEvalStudentSelect", "adminTargetStudent");
+    bindSelectToInput("adminChatStudentSelect", "adminChatStudentEmail", function (em) {
+      listenToChatRoom(em, "adminChatMessages");
+    });
+    bindSelectToInput("adminBanUserSelect", "banTargetEmail");
+
+    function loadRegisteredStudentsList() {
+      if (!db) return;
+      db.collection("users").onSnapshot(function (snap) {
+        var studentEmails = [];
+        var allEmails = [];
+        snap.forEach(function (docSnap) {
+          var d = docSnap.data() || {};
+          var em = (d.email || docSnap.id || "").trim().toLowerCase();
+          if (!em) return;
+          if (allEmails.indexOf(em) === -1) allEmails.push(em);
+          if (d.role === "student" && !isAdminEmail(em) && studentEmails.indexOf(em) === -1) {
+            studentEmails.push(em);
+          }
+        });
+
+        fillSelectOptions("teacherEvalStudentSelect", studentEmails, "-- اختر طالب من القائمة أو اكتب إيميله بالأسفل --");
+        fillSelectOptions("teacherChatStudentSelect", studentEmails, "-- اختر طالب لفتح شاته أو اكتب إيميله بالأسفل --");
+        fillSelectOptions("adminEvalStudentSelect", studentEmails, "-- اختر طالب من القائمة أو اكتب إيميله بالأسفل --");
+        fillSelectOptions("adminChatStudentSelect", studentEmails, "-- اختر طالب لفتح شاته أو اكتب إيميله بالأسفل --");
+        fillSelectOptions("adminBanUserSelect", allEmails, "-- اختر مستخدم من القائمة أو اكتب إيميله بالأسفل --");
+      });
     }
 
     function checkAndSaveRole(user) {
@@ -328,8 +410,10 @@
           if (adminUser || data.role === "admin") {
             document.getElementById("adminPanel").style.display = "block";
             loadAdminVideos();
+            loadRegisteredStudentsList();
           } else if (data.role === "teacher") {
             document.getElementById("teacherPanel").style.display = "block";
+            loadRegisteredStudentsList();
           } else {
             document.getElementById("studentPanel").style.display = "block";
             loadStudentData(email);
@@ -349,7 +433,7 @@
       var st = document.getElementById("targetStudentEmail").value.trim().toLowerCase();
       var grade = document.getElementById("teacherGradeInput").value.trim();
       var txt = document.getElementById("teacherEvalText").value.trim();
-      if (!st || (!grade && !txt)) return alert("اكتب إيميل التلميذ والدرجة أو التقييم");
+      if (!st || (!grade && !txt)) return alert("اختر الطالب أو اكتب إيميله واكتب الدرجة أو التقييم");
       var combined = (grade ? "الدرجة: " + grade : "") + (grade && txt ? " — " : "") + txt;
       db.collection("evaluations").doc(st).set({
         grade: grade,
@@ -365,7 +449,7 @@
       var st = document.getElementById("adminTargetStudent").value.trim().toLowerCase();
       var grade = document.getElementById("adminGradeInput").value.trim();
       var txt = document.getElementById("adminOverrideEval").value.trim();
-      if (!st || (!grade && !txt)) return alert("اكتب إيميل التلميذ والدرجة الجديدة أو التقييم");
+      if (!st || (!grade && !txt)) return alert("اختر الطالب أو اكتب إيميله واكتب الدرجة الجديدة أو التقييم");
       var combined = (grade ? "الدرجة: " + grade : "") + (grade && txt ? " — " : "") + txt + " (مُعدّل من الإدارة)";
       db.collection("evaluations").doc(st).set({
         grade: grade,
@@ -379,7 +463,7 @@
 
     document.getElementById("btnAdminDeleteEval").addEventListener("click", function () {
       var st = document.getElementById("adminTargetStudent").value.trim().toLowerCase();
-      if (!st) return alert("اكتب إيميل التلميذ لحذف تقييمه");
+      if (!st) return alert("اختر الطالب أو اكتب إيميله لحذف تقييمه");
       db.collection("evaluations").doc(st).delete().then(function () {
         alert("تم حذف التقييم بنجاح!");
       });
@@ -522,7 +606,7 @@
       var customName = nameInputId ? document.getElementById(nameInputId).value.trim() : "";
       var senderName = customName ? (customName + " — " + roleLabel) : roleLabel;
       var msg = document.getElementById(inputId).value.trim();
-      if (!cleanStudent) return alert("اكتب إيميل الطالب أولاً!");
+      if (!cleanStudent) return alert("اختر الطالب أو اكتب إيميله أولاً!");
       if (!msg) return;
 
       db.collection("messages").add({
@@ -543,7 +627,7 @@
 
     document.getElementById("btnOpenTeacherChat").addEventListener("click", function () {
       var stEmail = document.getElementById("teacherChatStudentEmail").value.trim().toLowerCase();
-      if (!stEmail) return alert("اكتب إيميل الطالب أولاً!");
+      if (!stEmail) return alert("اختر الطالب أو اكتب إيميله أولاً!");
       listenToChatRoom(stEmail, "teacherChatMessages");
     });
 
@@ -555,7 +639,7 @@
 
     document.getElementById("btnOpenAdminChat").addEventListener("click", function () {
       var stEmail = document.getElementById("adminChatStudentEmail").value.trim().toLowerCase();
-      if (!stEmail) return alert("اكتب إيميل الطالب أولاً!");
+      if (!stEmail) return alert("اختر الطالب أو اكتب إيميله أولاً!");
       listenToChatRoom(stEmail, "adminChatMessages");
     });
 
