@@ -8,7 +8,6 @@
 </head>
 <body>
 
-  <!-- 1. واجهة تسجيل الدخول الرئيسية -->
   <div id="loginScreen" class="login-wrapper">
     <div class="login-header-text">
       <h1>تسجيل الدخول أو إنشاء حساب</h1>
@@ -60,7 +59,6 @@
     </div>
   </div>
 
-  <!-- 2. شاشة الحظر -->
   <div id="bannedScreen" class="login-wrapper" style="display: none;">
     <div class="login-card" style="border-top: 5px solid #c0392b; text-align: center;">
       <h2 style="color: #c0392b;">⛔ تم حظر حسابك (Banned)</h2>
@@ -69,7 +67,6 @@
     </div>
   </div>
 
-  <!-- 3. محتوى المدرسة ولوحات التحكم -->
   <div id="mainAppContent" style="display: none;">
     <header>
       <h1>مدرسة الصداقة المصرية الأذربيجانية الرسمية للغات</h1>
@@ -81,7 +78,6 @@
     </header>
 
     <div class="container">
-      <!-- لوحة التلميذ -->
       <div id="studentPanel" class="section" style="display: none;">
         <h2>لوحة التلميذ 🎓</h2>
         <div class="card">
@@ -102,7 +98,6 @@
         </div>
       </div>
 
-      <!-- لوحة المعلم -->
       <div id="teacherPanel" class="section" style="display: none;">
         <h2>لوحة المعلم 👨‍🏫</h2>
         <div class="card">
@@ -121,7 +116,6 @@
         </div>
       </div>
 
-      <!-- لوحة المدير -->
       <div id="adminPanel" class="section" style="border-right-color: #c0392b; display: none;">
         <h2 style="color: #c0392b;">🛡️ لوحة المدير (المتحكم الكامل)</h2>
         <div class="card">
@@ -153,13 +147,11 @@
     </div>
   </div>
 
-  <!-- مكتبات Firebase عبر CDN -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
   <script>
-    // 1. تبديل حقل كلمة المرور
     var passVisible = false;
     document.getElementById("togglePassText").addEventListener("click", function () {
       passVisible = !passVisible;
@@ -174,10 +166,9 @@
       document.body.classList.toggle("dark-mode");
     });
 
-    // 2. إعدادات مشروع Firebase الخاص بك
     var auth = null;
     var db = null;
-    var ADMIN_EMAIL = "mahraban2000@gmail.com";[cite: 1]
+    var ADMIN_EMAIL = "mahraban2000@gmail.com";
 
     try {
       var firebaseConfig = {
@@ -207,7 +198,6 @@
       });
     }
 
-    // الدخول بجوجل
     document.getElementById("btnGoogleLogin").addEventListener("click", function () {
       if (!auth) return alert("تعذر الاتصال بخدمة Firebase، تحقق من الاتصال بالإنترنت وأعد تحميل الصفحة.");
       var provider = new firebase.auth.GoogleAuthProvider();
@@ -216,7 +206,6 @@
         .catch(function (error) { alert("خطأ في الدخول بجوجل: " + error.message); });
     });
 
-    // إرسال رابط الدخول للإيميل
     document.getElementById("emailLinkBtn").addEventListener("click", function () {
       if (!auth) return alert("تعذر الاتصال بخدمة Firebase، تحقق من الاتصال بالإنترنت وأعد تحميل الصفحة.");
       var email = document.getElementById("emailInput").value.trim().toLowerCase();
@@ -230,7 +219,6 @@
         .catch(function (error) { alert("خطأ: " + error.message); });
     });
 
-    // الدخول بكلمة المرور
     document.getElementById("btnLoginPass").addEventListener("click", function () {
       if (!auth) return alert("تعذر الاتصال بخدمة Firebase، تحقق من الاتصال بالإنترنت وأعد تحميل الصفحة.");
       var email = document.getElementById("emailInput").value.trim().toLowerCase();
@@ -241,7 +229,6 @@
         .catch(function (error) { alert("خطأ في تسجيل الدخول: " + error.message); });
     });
 
-    // إنشاء حساب جديد بكلمة المرور
     document.getElementById("btnSignupPass").addEventListener("click", function () {
       if (!auth) return alert("تعذر الاتصال بخدمة Firebase، تحقق من الاتصال بالإنترنت وأعد تحميل الصفحة.");
       var email = document.getElementById("emailInput").value.trim().toLowerCase();
