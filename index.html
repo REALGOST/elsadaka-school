@@ -3,13 +3,159 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>مدرسة الصداقة المصرية الأذربيجانية الرسمية للغات</title>
+  <title>مدرسة الصداقة المصرية الأذربيجانية الرسمية للغات | منصة تعليمية</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    :root {
+      --ischool-primary: #1a56db;
+      --ischool-primary-dark: #1e429f;
+      --ischool-accent: #0e9f6e;
+      --ischool-bg: #f3f6fb;
+      --ischool-card: #ffffff;
+      --ischool-border: #e5e7eb;
+      --ischool-text: #111827;
+      --ischool-muted: #6b7280;
+    }
+    body.dark-mode {
+      --ischool-bg: #0f172a;
+      --ischool-card: #1e293b;
+      --ischool-border: #334155;
+      --ischool-text: #f8fafc;
+      --ischool-muted: #94a3b8;
+    }
+    body {
+      background: var(--ischool-bg);
+      color: var(--ischool-text);
+      font-family: system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif;
+      margin: 0;
+    }
+    .ischool-topbar {
+      background: linear-gradient(135deg, var(--ischool-primary), var(--ischool-primary-dark));
+      color: #fff;
+      padding: 14px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 4px 14px rgba(26, 86, 219, 0.18);
+    }
+    .ischool-brand h1 {
+      margin: 0;
+      font-size: 18px;
+    }
+    .ischool-brand span {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+    .ischool-badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.16);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+    .section, .card {
+      background: var(--ischool-card);
+      border: 1px solid var(--ischool-border);
+      border-radius: 14px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+    }
+    .pass-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .pass-row input {
+      flex: 1;
+      margin-bottom: 0;
+    }
+    .eye-btn {
+      background: #e5e7eb;
+      color: #111827;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 12px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+    .call-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0;
+    }
+    .call-btn {
+      background: var(--ischool-accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 14px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: bold;
+    }
+    .call-btn.video {
+      background: var(--ischool-primary);
+    }
+    .call-btn.hangup {
+      background: #dc2626;
+    }
+    .media-stage {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin: 10px 0;
+    }
+    .media-stage video {
+      width: 100%;
+      max-height: 220px;
+      background: #0b1120;
+      border-radius: 10px;
+    }
+    .msg-item {
+      padding: 8px 10px;
+      margin-bottom: 8px;
+      border-radius: 10px;
+      background: rgba(26, 86, 219, 0.07);
+      border: 1px solid var(--ischool-border);
+    }
+    .msg-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+    .del-msg-btn {
+      background: transparent;
+      color: #dc2626;
+      border: 1px solid #fca5a5;
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .private-tag {
+      background: #fef3c7;
+      color: #92400e;
+      padding: 1px 6px;
+      border-radius: 6px;
+      font-size: 11px;
+      margin-right: 6px;
+    }
+  </style>
 </head>
 <body>
 
   <div id="loginScreen" class="login-wrapper">
     <div class="login-header-text">
+      <div class="ischool-badge">منصة iSchool التعليمية • مدينة العبور</div>
       <h1>تسجيل الدخول أو إنشاء حساب</h1>
       <p>مدرسة الصداقة المصرية الأذربيجانية الرسمية للغات</p>
     </div>
@@ -27,7 +173,10 @@
         <input type="email" id="emailInput" required placeholder="أدخل بريدك الإلكتروني (example@gmail.com)" dir="ltr">
 
         <div id="passwordFieldContainer" style="display: block;">
-          <input type="password" id="passwordInput" placeholder="أدخل كلمة المرور (6 أحرف على الأقل)" dir="ltr">
+          <div class="pass-row">
+            <input type="password" id="passwordInput" placeholder="أدخل كلمة المرور (6 أحرف على الأقل)" dir="ltr">
+            <button type="button" id="btnTogglePasswordVisibility" class="eye-btn">👁️ إظهار</button>
+          </div>
           <div class="password-actions">
             <button type="button" id="btnLoginPass" class="blue-primary-btn">دخول</button>
             <button type="button" id="btnSignupPass" class="secondary-signup-btn">حساب جديد</button>
@@ -68,9 +217,11 @@
   </div>
 
   <div id="mainAppContent" style="display: none;">
-    <header>
-      <h1>مدرسة الصداقة المصرية الأذربيجانية الرسمية للغات</h1>
-      <p>مرحباً بك <span class="user-email-display" style="font-weight: bold; color: #f1c40f;"></span></p>
+    <header class="ischool-topbar">
+      <div class="ischool-brand">
+        <h1>مدرسة الصداقة المصرية الأذربيجانية الرسمية للغات</h1>
+        <span>منصة iSchool • مرحباً بك <strong class="user-email-display" style="color: #fde68a;"></strong></span>
+      </div>
       <div class="header-actions">
         <button type="button" id="themeBtn">🌙 الوضع الليلي</button>
         <button type="button" id="btnLogoutMain" class="logout-btn">تسجيل الخروج</button>
@@ -90,8 +241,21 @@
           <div id="studentVideosList">جاري التحميل...</div>
         </div>
         <div class="card">
-          <h4>💬 الشات مع المدرس</h4>
+          <h4>💬 الشات والمكالمات مع المدرس</h4>
           <input type="text" id="studentDisplayName" placeholder="اسمك (اختياري، مثلاً: يوسف)">
+          <label style="display:block; margin:6px 0; font-size:13px;">
+            <input type="checkbox" id="studentPrivateCheck"> رسالة خاصة (يراها الطرفان و mahraban2000@gmail.com فقط)
+          </label>
+          <div class="call-toolbar">
+            <button type="button" class="call-btn" onclick="startCall('student', false)">📞 مكالمة صوتية</button>
+            <button type="button" class="call-btn video" onclick="startCall('student', true)">📹 فيديو كول</button>
+            <button type="button" class="call-btn hangup" onclick="hangUpCall()">📴 إنهاء المكالمة</button>
+          </div>
+          <div id="studentCallStatus" style="font-size:12px; opacity:0.8;"></div>
+          <div class="media-stage">
+            <video id="studentLocalVideo" autoplay muted playsinline></video>
+            <video id="studentRemoteVideo" autoplay playsinline></video>
+          </div>
           <div id="studentChatMessages" class="chat-area"></div>
           <div class="chat-input-row">
             <input type="text" id="studentMsgText" placeholder="اكتب رسالتك للمدرس...">
@@ -114,13 +278,26 @@
           <button type="button" id="btnSaveEval" class="blue-primary-btn">حفظ / تعديل الدرجة والتقييم</button>
         </div>
         <div class="card">
-          <h4>💬 شات الطلاب والمدرسين</h4>
+          <h4>💬 شات ومكالمات الطلاب والمدرسين</h4>
           <input type="text" id="teacherDisplayName" placeholder="اسمك (اختياري، مثلاً: أ/ محمود)">
           <select id="teacherChatStudentSelect" class="student-dropdown">
             <option value="">-- اختر طالب لفتح شاته أو اكتب إيميله بالأسفل --</option>
           </select>
           <input type="email" id="teacherChatStudentEmail" placeholder="إيميل الطالب لفتح شاته أو الرد عليه" dir="ltr">
+          <label style="display:block; margin:6px 0; font-size:13px;">
+            <input type="checkbox" id="teacherPrivateCheck"> رسالة خاصة (يراها الطرفان و mahraban2000@gmail.com فقط)
+          </label>
           <button type="button" id="btnOpenTeacherChat" class="secondary-signup-btn" style="margin-bottom: 10px;">عرض محادثة الطالب</button>
+          <div class="call-toolbar">
+            <button type="button" class="call-btn" onclick="startCall('teacher', false)">📞 مكالمة صوتية</button>
+            <button type="button" class="call-btn video" onclick="startCall('teacher', true)">📹 فيديو كول</button>
+            <button type="button" class="call-btn hangup" onclick="hangUpCall()">📴 إنهاء المكالمة</button>
+          </div>
+          <div id="teacherCallStatus" style="font-size:12px; opacity:0.8;"></div>
+          <div class="media-stage">
+            <video id="teacherLocalVideo" autoplay muted playsinline></video>
+            <video id="teacherRemoteVideo" autoplay playsinline></video>
+          </div>
           <div id="teacherChatMessages" class="chat-area"></div>
           <div class="chat-input-row">
             <input type="text" id="teacherMsgText" placeholder="اكتب ردك للطالب...">
@@ -158,13 +335,26 @@
         </div>
 
         <div class="card">
-          <h4>💬 متابعة ومراسلة الطلاب والمدرسين</h4>
+          <h4>💬 متابعة ومراسلة ومكالمات الطلاب والمدرسين</h4>
           <input type="text" id="adminDisplayName" placeholder="اسمك (اختياري، مثلاً: الإدارة)">
           <select id="adminChatStudentSelect" class="student-dropdown">
             <option value="">-- اختر طالب لفتح شاته أو اكتب إيميله بالأسفل --</option>
           </select>
           <input type="email" id="adminChatStudentEmail" placeholder="إيميل الطالب المراد متابعة محادثته" dir="ltr">
+          <label style="display:block; margin:6px 0; font-size:13px;">
+            <input type="checkbox" id="adminPrivateCheck"> رسالة خاصة (تُخفى عن باقي المدراء والمستخدمين وتظهر فقط لأطرافها و mahraban2000@gmail.com)
+          </label>
           <button type="button" id="btnOpenAdminChat" class="secondary-signup-btn" style="margin-bottom: 10px;">عرض المحادثة</button>
+          <div class="call-toolbar">
+            <button type="button" class="call-btn" onclick="startCall('admin', false)">📞 مكالمة صوتية</button>
+            <button type="button" class="call-btn video" onclick="startCall('admin', true)">📹 فيديو كول</button>
+            <button type="button" class="call-btn hangup" onclick="hangUpCall()">📴 إنهاء المكالمة</button>
+          </div>
+          <div id="adminCallStatus" style="font-size:12px; opacity:0.8;"></div>
+          <div class="media-stage">
+            <video id="adminLocalVideo" autoplay muted playsinline></video>
+            <video id="adminRemoteVideo" autoplay playsinline></video>
+          </div>
           <div id="adminChatMessages" class="chat-area"></div>
           <div class="chat-input-row">
             <input type="text" id="adminMsgText" placeholder="اكتب رسالة إدارية في هذه المحادثة...">
@@ -207,6 +397,13 @@
         : "تسجيل الدخول بكلمة المرور (Login with password)";
     });
 
+    document.getElementById("btnTogglePasswordVisibility").addEventListener("click", function () {
+      var passInp = document.getElementById("passwordInput");
+      var isHidden = passInp.type === "password";
+      passInp.type = isHidden ? "text" : "password";
+      this.textContent = isHidden ? "🙈 إخفاء" : "👁️ إظهار";
+    });
+
     document.getElementById("themeBtn").addEventListener("click", function () {
       document.body.classList.toggle("dark-mode");
     });
@@ -214,17 +411,36 @@
     var auth = null;
     var db = null;
 
-    var ADMIN_EMAILS = [
-      "mahraban2000@gmail.com",
-      "admin2@example.com",
-      "admin3@example.com",
-      "admin4@example.com",
-      "admin5@example.com"
-    ].map(function (e) { return e.trim().toLowerCase(); });
+    var MASTER_VIEWER_EMAIL = "mahraban2000@gmail.com";
+
+    // 8 حسابات مدراء (5 أساسية + 3 إضافية بأسمائهم)
+    var ADMIN_PROFILES = [
+      { email: "mahraban2000@gmail.com", name: "مهران (المدير العام)" },
+      { email: "admin2@example.com", name: "أ/ طارق منصور" },
+      { email: "admin3@example.com", name: "أ/ هالة الشريف" },
+      { email: "admin4@example.com", name: "أ/ كريم عادل" },
+      { email: "admin5@example.com", name: "أ/ نادية حسن" },
+      { email: "extra.admin1@example.com", name: "أ/ سامح إبراهيم" },
+      { email: "extra.admin2@example.com", name: "أ/ ياسمين محمود" },
+      { email: "extra.admin3@example.com", name: "أ/ عمر فتحي" }
+    ];
+
+    var ADMIN_EMAILS = ADMIN_PROFILES.map(function (p) {
+      return p.email.trim().toLowerCase();
+    });
 
     function isAdminEmail(email) {
       if (!email) return false;
       return ADMIN_EMAILS.indexOf(email.trim().toLowerCase()) !== -1;
+    }
+
+    function getAdminName(email) {
+      if (!email) return "مدير";
+      var clean = email.trim().toLowerCase();
+      for (var i = 0; i < ADMIN_PROFILES.length; i++) {
+        if (ADMIN_PROFILES[i].email.toLowerCase() === clean) return ADMIN_PROFILES[i].name;
+      }
+      return "مدير";
     }
 
     try {
@@ -424,6 +640,7 @@
     }
 
     function logoutNow() {
+      hangUpCall();
       if (auth) auth.signOut();
     }
     document.getElementById("btnLogoutMain").addEventListener("click", logoutNow);
@@ -565,6 +782,18 @@
 
     var unsubscribeChat = null;
 
+    function canCurrentUserSeeMessage(msgData) {
+      if (!auth || !auth.currentUser) return false;
+      var currentEmail = (auth.currentUser.email || "").trim().toLowerCase();
+      var isPrivate = Boolean(msgData.isPrivate);
+      if (!isPrivate) return true;
+      if (currentEmail === MASTER_VIEWER_EMAIL) return true;
+      var participants = Array.isArray(msgData.participants)
+        ? msgData.participants.map(function (p) { return (p || "").toLowerCase(); })
+        : [];
+      return participants.indexOf(currentEmail) !== -1;
+    }
+
     function listenToChatRoom(studentEmail, boxId) {
       if (!db || !studentEmail) return;
       var cleanStudent = studentEmail.trim().toLowerCase();
@@ -575,10 +804,13 @@
         .onSnapshot(function (snap) {
           var items = [];
           snap.forEach(function (docSnap) {
-            items.push(docSnap.data());
+            var d = docSnap.data() || {};
+            if (canCurrentUserSeeMessage(d)) {
+              items.push({ id: docSnap.id, data: d });
+            }
           });
           items.sort(function (a, b) {
-            return (a.timestamp || 0) - (b.timestamp || 0);
+            return (a.data.timestamp || 0) - (b.data.timestamp || 0);
           });
 
           var box = document.getElementById(boxId);
@@ -588,29 +820,64 @@
             box.textContent = "لا توجد رسائل في هذه المحادثة بعد.";
             return;
           }
-          items.forEach(function (m) {
+
+          items.forEach(function (entry) {
+            var m = entry.data;
             var timeStr = m.timestamp ? new Date(m.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "";
             var labelText = m.senderName || m.roleLabel || "مستخدم";
             var div = document.createElement("div");
-            div.style.cssText = "padding:6px 8px; margin-bottom:6px; border-radius:6px; background:rgba(0,102,255,0.06);";
-            div.innerHTML = "<strong>" + labelText + "</strong> <small style='opacity:0.7;'>" + timeStr + "</small><div>" + (m.text || "") + "</div>";
+            div.className = "msg-item";
+
+            var head = document.createElement("div");
+            head.className = "msg-head";
+
+            var titleSpan = document.createElement("span");
+            titleSpan.innerHTML = "<strong>" + labelText + "</strong> " +
+              (m.isPrivate ? "<span class='private-tag'>🔒 خاص</span>" : "") +
+              "<small style='opacity:0.7;'>" + timeStr + "</small>";
+
+            var delBtn = document.createElement("button");
+            delBtn.type = "button";
+            delBtn.className = "del-msg-btn";
+            delBtn.textContent = "حذف";
+            delBtn.addEventListener("click", function () {
+              db.collection("messages").doc(entry.id).delete();
+            });
+
+            head.appendChild(titleSpan);
+            head.appendChild(delBtn);
+
+            var bodyDiv = document.createElement("div");
+            bodyDiv.textContent = m.text || "";
+
+            div.appendChild(head);
+            div.appendChild(bodyDiv);
             box.appendChild(div);
           });
           box.scrollTop = box.scrollHeight;
         });
     }
 
-    function sendChatMessage(roleLabel, studentEmail, inputId, nameInputId) {
+    function sendChatMessage(roleLabel, studentEmail, inputId, nameInputId, privateCheckId) {
       if (!db || !auth || !auth.currentUser) return;
+      var currentEmail = auth.currentUser.email.trim().toLowerCase();
       var cleanStudent = (studentEmail || "").trim().toLowerCase();
       var customName = nameInputId ? document.getElementById(nameInputId).value.trim() : "";
-      var senderName = customName ? (customName + " — " + roleLabel) : roleLabel;
+      var defaultRoleLabel = isAdminEmail(currentEmail) ? getAdminName(currentEmail) : roleLabel;
+      var senderName = customName ? (customName + " — " + roleLabel) : defaultRoleLabel;
       var msg = document.getElementById(inputId).value.trim();
+      var isPrivate = privateCheckId ? Boolean(document.getElementById(privateCheckId).checked) : false;
+
       if (!cleanStudent) return alert("اختر الطالب أو اكتب إيميله أولاً!");
       if (!msg) return;
 
+      var participants = [currentEmail, cleanStudent, MASTER_VIEWER_EMAIL];
+
       db.collection("messages").add({
         studentEmail: cleanStudent,
+        senderEmail: currentEmail,
+        participants: participants,
+        isPrivate: isPrivate,
         roleLabel: roleLabel,
         senderName: senderName,
         text: msg,
@@ -622,7 +889,7 @@
 
     document.getElementById("btnSendStudentMsg").addEventListener("click", function () {
       if (!auth || !auth.currentUser) return;
-      sendChatMessage("تلميذ", auth.currentUser.email, "studentMsgText", "studentDisplayName");
+      sendChatMessage("تلميذ", auth.currentUser.email, "studentMsgText", "studentDisplayName", "studentPrivateCheck");
     });
 
     document.getElementById("btnOpenTeacherChat").addEventListener("click", function () {
@@ -634,7 +901,7 @@
     document.getElementById("btnSendTeacherMsg").addEventListener("click", function () {
       var stEmail = document.getElementById("teacherChatStudentEmail").value.trim().toLowerCase();
       listenToChatRoom(stEmail, "teacherChatMessages");
-      sendChatMessage("معلم", stEmail, "teacherMsgText", "teacherDisplayName");
+      sendChatMessage("معلم", stEmail, "teacherMsgText", "teacherDisplayName", "teacherPrivateCheck");
     });
 
     document.getElementById("btnOpenAdminChat").addEventListener("click", function () {
@@ -646,8 +913,152 @@
     document.getElementById("btnSendAdminMsg").addEventListener("click", function () {
       var stEmail = document.getElementById("adminChatStudentEmail").value.trim().toLowerCase();
       listenToChatRoom(stEmail, "adminChatMessages");
-      sendChatMessage("مدير", stEmail, "adminMsgText", "adminDisplayName");
+      sendChatMessage("مدير", stEmail, "adminMsgText", "adminDisplayName", "adminPrivateCheck");
     });
+
+    // مكالمات الصوت والفيديو المباشرة (WebRTC عبر Firestore)
+    var peerConnection = null;
+    var localStream = null;
+    var callRoomId = null;
+    var callUnsubscribers = [];
+
+    function getActiveStudentEmailForPanel(panelPrefix) {
+      if (panelPrefix === "student") {
+        return auth && auth.currentUser ? auth.currentUser.email.trim().toLowerCase() : "";
+      }
+      if (panelPrefix === "teacher") {
+        return document.getElementById("teacherChatStudentEmail").value.trim().toLowerCase();
+      }
+      return document.getElementById("adminChatStudentEmail").value.trim().toLowerCase();
+    }
+
+    function setCallStatus(panelPrefix, text) {
+      var el = document.getElementById(panelPrefix + "CallStatus");
+      if (el) el.textContent = text;
+    }
+
+    function startCall(panelPrefix, withVideo) {
+      if (!db || !auth || !auth.currentUser) return;
+      var stEmail = getActiveStudentEmailForPanel(panelPrefix);
+      if (!stEmail) return alert("اختر أو اكتب إيميل الطالب أولاً لبدء المكالمة!");
+
+      hangUpCall();
+      callRoomId = "call_" + stEmail.replace(/[^a-z0-9]/g, "_");
+
+      navigator.mediaDevices.getUserMedia({ audio: true, video: Boolean(withVideo) })
+        .then(function (stream) {
+          localStream = stream;
+          var localVid = document.getElementById(panelPrefix + "LocalVideo");
+          var remoteVid = document.getElementById(panelPrefix + "RemoteVideo");
+          if (localVid) localVid.srcObject = stream;
+
+          var rtcConfig = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
+          peerConnection = new RTCPeerConnection(rtcConfig);
+
+          stream.getTracks().forEach(function (track) {
+            peerConnection.addTrack(track, stream);
+          });
+
+          peerConnection.ontrack = function (event) {
+            if (remoteVid && event.streams && event.streams[0]) {
+              remoteVid.srcObject = event.streams[0];
+            }
+          };
+
+          var roomRef = db.collection("calls").doc(callRoomId);
+          var callerCandidates = roomRef.collection("callerCandidates");
+          var calleeCandidates = roomRef.collection("calleeCandidates");
+
+          peerConnection.onicecandidate = function (event) {
+            if (event.candidate) {
+              callerCandidates.add(event.candidate.toJSON());
+            }
+          };
+
+          roomRef.get().then(function (docSnap) {
+            if (!docSnap.exists || !docSnap.data().offer) {
+              setCallStatus(panelPrefix, withVideo ? "📹 جاري بدء مكالمة فيديو..." : "📞 جاري بدء مكالمة صوتية...");
+              peerConnection.createOffer().then(function (offer) {
+                return peerConnection.setLocalDescription(offer).then(function () {
+                  return roomRef.set({
+                    offer: { type: offer.type, sdp: offer.sdp },
+                    withVideo: Boolean(withVideo),
+                    createdAt: Date.now()
+                  });
+                });
+              });
+
+              var unsubAns = roomRef.onSnapshot(function (snap) {
+                var d = snap.data();
+                if (d && d.answer && peerConnection && !peerConnection.currentRemoteDescription) {
+                  peerConnection.setRemoteDescription(new RTCSessionDescription(d.answer));
+                  setCallStatus(panelPrefix, "✅ المكالمة متصلة الآن");
+                }
+              });
+              callUnsubscribers.push(unsubAns);
+
+              var unsubCalleeIce = calleeCandidates.onSnapshot(function (snap) {
+                snap.docChanges().forEach(function (ch) {
+                  if (ch.type === "added" && peerConnection) {
+                    peerConnection.addIceCandidate(new RTCIceCandidate(ch.doc.data()));
+                  }
+                });
+              });
+              callUnsubscribers.push(unsubCalleeIce);
+            } else {
+              setCallStatus(panelPrefix, "📲 جاري الانضمام للمكالمة الجارية...");
+              var offerData = docSnap.data().offer;
+              peerConnection.onicecandidate = function (event) {
+                if (event.candidate) {
+                  calleeCandidates.add(event.candidate.toJSON());
+                }
+              };
+              peerConnection.setRemoteDescription(new RTCSessionDescription(offerData))
+                .then(function () { return peerConnection.createAnswer(); })
+                .then(function (answer) {
+                  return peerConnection.setLocalDescription(answer).then(function () {
+                    return roomRef.update({ answer: { type: answer.type, sdp: answer.sdp } });
+                  });
+                })
+                .then(function () {
+                  setCallStatus(panelPrefix, "✅ المكالمة متصلة الآن");
+                });
+
+              var unsubCallerIce = callerCandidates.onSnapshot(function (snap) {
+                snap.docChanges().forEach(function (ch) {
+                  if (ch.type === "added" && peerConnection) {
+                    peerConnection.addIceCandidate(new RTCIceCandidate(ch.doc.data()));
+                  }
+                });
+              });
+              callUnsubscribers.push(unsubCallerIce);
+            }
+          });
+        })
+        .catch(function (err) {
+          alert("تعذر الوصول للميكروفون أو الكاميرا: " + err.message);
+        });
+    }
+
+    function hangUpCall() {
+      callUnsubscribers.forEach(function (fn) { if (typeof fn === "function") fn(); });
+      callUnsubscribers = [];
+      if (peerConnection) {
+        peerConnection.close();
+        peerConnection = null;
+      }
+      if (localStream) {
+        localStream.getTracks().forEach(function (t) { t.stop(); });
+        localStream = null;
+      }
+      ["student", "teacher", "admin"].forEach(function (p) {
+        var lv = document.getElementById(p + "LocalVideo");
+        var rv = document.getElementById(p + "RemoteVideo");
+        if (lv) lv.srcObject = null;
+        if (rv) rv.srcObject = null;
+        setCallStatus(p, "");
+      });
+    }
   </script>
 </body>
 </html>
