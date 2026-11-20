@@ -26,7 +26,7 @@
       <form onsubmit="return false;">
         <input type="email" id="emailInput" required placeholder="أدخل بريدك الإلكتروني (example@gmail.com)" dir="ltr">
 
-        <div id="passwordFieldContainer" style="display: none;">
+        <div id="passwordFieldContainer" style="display: block;">
           <input type="password" id="passwordInput" placeholder="أدخل كلمة المرور (6 أحرف على الأقل)" dir="ltr">
           <div class="password-actions">
             <button type="button" id="btnLoginPass" class="blue-primary-btn">دخول</button>
@@ -34,13 +34,13 @@
           </div>
         </div>
 
-        <button type="button" id="emailLinkBtn" class="blue-primary-btn">
+        <button type="button" id="emailLinkBtn" class="blue-primary-btn" style="display: none;">
           أرسل لي رابط الدخول (Email Me Login Link)
         </button>
       </form>
 
       <div class="toggle-pass-link">
-        <a href="javascript:void(0)" id="togglePassText">تسجيل الدخول بكلمة المرور (Login with password)</a>
+        <a href="javascript:void(0)" id="togglePassText">العودة للدخول برابط الإيميل (Login with Email Link)</a>
       </div>
 
       <div class="or-divider"><span>أو الدخول السريع عبر</span></div>
@@ -81,7 +81,7 @@
       <div id="studentPanel" class="section" style="display: none;">
         <h2>لوحة التلميذ 🎓</h2>
         <div class="card">
-          <h4>📊 تقييمك وملاحظات المعلم</h4>
+          <h4>📊 تقييمك ودرجتك وملاحظات المعلم</h4>
           <div id="studentEvaluationBox" class="eval-display">جاري تحميل التقييم...</div>
         </div>
         <div class="card">
@@ -101,10 +101,11 @@
       <div id="teacherPanel" class="section" style="display: none;">
         <h2>لوحة المعلم 👨‍🏫</h2>
         <div class="card">
-          <h4>📝 تقييم التلميذ</h4>
+          <h4>📝 إضافة أو تعديل درجة وتقييم التلميذ</h4>
           <input type="email" id="targetStudentEmail" placeholder="إيميل التلميذ المراد تقييمه" dir="ltr">
-          <textarea id="teacherEvalText" rows="3" placeholder="اكتب التقييم والدرجة..."></textarea>
-          <button type="button" id="btnSaveEval" class="blue-primary-btn">حفظ التقييم</button>
+          <input type="text" id="teacherGradeInput" placeholder="الدرجة (مثال: 95/100 أو ممتاز)">
+          <textarea id="teacherEvalText" rows="3" placeholder="اكتب ملاحظاتك وتقييمك..."></textarea>
+          <button type="button" id="btnSaveEval" class="blue-primary-btn">حفظ / تعديل الدرجة والتقييم</button>
         </div>
         <div class="card">
           <h4>💬 رسائل التلاميذ</h4>
@@ -118,18 +119,28 @@
 
       <div id="adminPanel" class="section" style="border-right-color: #c0392b; display: none;">
         <h2 style="color: #c0392b;">🛡️ لوحة المدير (المتحكم الكامل)</h2>
+
         <div class="card">
-          <h4>🎬 نشر فيديو تعليمي للطلاب</h4>
+          <h4>🎬 نشر وحذف الفيديوهات التعليمية</h4>
           <input type="text" id="videoTitle" placeholder="عنوان الدرس">
           <input type="url" id="videoUrl" placeholder="رابط الفيديو (YouTube / Drive)" dir="ltr">
           <button type="button" id="btnPublishVideo" class="blue-primary-btn">نشر الفيديو</button>
+          <hr style="margin: 16px 0; border: none; border-top: 1px solid #e2e8f0;">
+          <h5>الفيديوهات المنشورة حالياً:</h5>
+          <div id="adminVideosList">جاري تحميل الفيديوهات...</div>
         </div>
+
         <div class="card">
-          <h4>✏️ تعديل تقييم المعلم لأي تلميذ</h4>
+          <h4>✏️ تعديل درجة وتقييم المعلم لأي تلميذ</h4>
           <input type="email" id="adminTargetStudent" placeholder="إيميل التلميذ" dir="ltr">
+          <input type="text" id="adminGradeInput" placeholder="الدرجة الجديدة (مثال: 98/100)">
           <textarea id="adminOverrideEval" rows="2" placeholder="اكتب التقييم المعدّل..."></textarea>
-          <button type="button" id="btnAdminEval" class="blue-primary-btn">تعديل التقييم</button>
+          <div class="password-actions">
+            <button type="button" id="btnAdminEval" class="blue-primary-btn">تعديل الدرجة والتقييم</button>
+            <button type="button" id="btnAdminDeleteEval" class="ban-btn">حذف التقييم</button>
+          </div>
         </div>
+
         <div class="card">
           <h4>🚫 حظر مستخدم (Ban) أو فك الحظر</h4>
           <input type="email" id="banTargetEmail" placeholder="أدخل إيميل المستخدم" dir="ltr">
@@ -152,7 +163,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
   <script>
-    var passVisible = false;
+    var passVisible = true;
     document.getElementById("togglePassText").addEventListener("click", function () {
       passVisible = !passVisible;
       document.getElementById("passwordFieldContainer").style.display = passVisible ? "block" : "none";
@@ -168,7 +179,19 @@
 
     var auth = null;
     var db = null;
-    var ADMIN_EMAIL = "mahraban2000@gmail.com";
+
+    var ADMIN_EMAILS = [
+      "mahraban2000@gmail.com",
+      "admin2@example.com",
+      "admin3@example.com",
+      "admin4@example.com",
+      "admin5@example.com"
+    ].map(function (e) { return e.trim().toLowerCase(); });
+
+    function isAdminEmail(email) {
+      if (!email) return false;
+      return ADMIN_EMAILS.indexOf(email.trim().toLowerCase()) !== -1;
+    }
 
     try {
       var firebaseConfig = {
@@ -192,8 +215,10 @@
       var ref = db.collection("users").doc(email);
       ref.get().then(function (docSnap) {
         if (!docSnap.exists) {
-          var role = (email === ADMIN_EMAIL) ? "admin" : document.getElementById("selectedRole").value;
+          var role = isAdminEmail(email) ? "admin" : document.getElementById("selectedRole").value;
           ref.set({ email: email, role: role, banned: false });
+        } else if (isAdminEmail(email) && docSnap.data().role !== "admin") {
+          ref.set({ role: "admin", banned: false }, { merge: true });
         }
       });
     }
@@ -268,9 +293,10 @@
         });
 
         db.collection("users").doc(email).get().then(function (docSnap) {
-          var data = docSnap.exists ? docSnap.data() : { role: email === ADMIN_EMAIL ? "admin" : "student", banned: false };
+          var adminUser = isAdminEmail(email);
+          var data = docSnap.exists ? docSnap.data() : { role: adminUser ? "admin" : "student", banned: false };
 
-          if (data.banned && email !== ADMIN_EMAIL) {
+          if (data.banned && !adminUser) {
             document.getElementById("bannedScreen").style.display = "flex";
             return;
           }
@@ -280,8 +306,9 @@
           document.getElementById("teacherPanel").style.display = "none";
           document.getElementById("adminPanel").style.display = "none";
 
-          if (email === ADMIN_EMAIL || data.role === "admin") {
+          if (adminUser || data.role === "admin") {
             document.getElementById("adminPanel").style.display = "block";
+            loadAdminVideos();
           } else if (data.role === "teacher") {
             document.getElementById("teacherPanel").style.display = "block";
             loadChat();
@@ -302,31 +329,103 @@
 
     document.getElementById("btnSaveEval").addEventListener("click", function () {
       var st = document.getElementById("targetStudentEmail").value.trim().toLowerCase();
+      var grade = document.getElementById("teacherGradeInput").value.trim();
       var txt = document.getElementById("teacherEvalText").value.trim();
-      if (!st || !txt) return alert("اكتب إيميل التلميذ والتقييم");
-      db.collection("evaluations").doc(st).set({ text: txt, updatedBy: "المعلم" })
-        .then(function () { alert("تم حفظ التقييم بنجاح!"); });
+      if (!st || (!grade && !txt)) return alert("اكتب إيميل التلميذ والدرجة أو التقييم");
+      var combined = (grade ? "الدرجة: " + grade : "") + (grade && txt ? " — " : "") + txt;
+      db.collection("evaluations").doc(st).set({
+        grade: grade,
+        note: txt,
+        text: combined,
+        updatedBy: "المعلم"
+      }).then(function () {
+        alert("تم حفظ / تعديل الدرجة والتقييم بنجاح!");
+      });
     });
 
     document.getElementById("btnAdminEval").addEventListener("click", function () {
       var st = document.getElementById("adminTargetStudent").value.trim().toLowerCase();
+      var grade = document.getElementById("adminGradeInput").value.trim();
       var txt = document.getElementById("adminOverrideEval").value.trim();
-      if (!st || !txt) return alert("اكتب إيميل التلميذ والتقييم");
-      db.collection("evaluations").doc(st).set({ text: txt + " (مُعدّل من الإدارة)", updatedBy: "المدير" })
-        .then(function () { alert("تم تعديل التقييم بنجاح!"); });
+      if (!st || (!grade && !txt)) return alert("اكتب إيميل التلميذ والدرجة الجديدة أو التقييم");
+      var combined = (grade ? "الدرجة: " + grade : "") + (grade && txt ? " — " : "") + txt + " (مُعدّل من الإدارة)";
+      db.collection("evaluations").doc(st).set({
+        grade: grade,
+        note: txt,
+        text: combined,
+        updatedBy: "المدير"
+      }).then(function () {
+        alert("تم تعديل الدرجة والتقييم بنجاح!");
+      });
+    });
+
+    document.getElementById("btnAdminDeleteEval").addEventListener("click", function () {
+      var st = document.getElementById("adminTargetStudent").value.trim().toLowerCase();
+      if (!st) return alert("اكتب إيميل التلميذ لحذف تقييمه");
+      db.collection("evaluations").doc(st).delete().then(function () {
+        alert("تم حذف التقييم بنجاح!");
+      });
     });
 
     document.getElementById("btnPublishVideo").addEventListener("click", function () {
       var title = document.getElementById("videoTitle").value.trim();
       var url = document.getElementById("videoUrl").value.trim();
       if (!title || !url) return alert("اكتب عنوان الفيديو ورابطه");
-      db.collection("videos").add({ title: title, url: url, createdAt: Date.now() })
-        .then(function () { alert("تم نشر الفيديو للطلاب!"); });
+      db.collection("videos").add({
+        title: title,
+        url: url,
+        createdAt: Date.now()
+      }).then(function () {
+        document.getElementById("videoTitle").value = "";
+        document.getElementById("videoUrl").value = "";
+        alert("تم نشر الفيديو للطلاب!");
+      });
     });
+
+    function loadAdminVideos() {
+      if (!db) return;
+      db.collection("videos").orderBy("createdAt", "desc").onSnapshot(function (snap) {
+        var box = document.getElementById("adminVideosList");
+        if (!box) return;
+        box.innerHTML = "";
+        if (snap.empty) {
+          box.textContent = "لا توجد فيديوهات منشورة حالياً.";
+          return;
+        }
+        snap.forEach(function (docSnap) {
+          var v = docSnap.data();
+          var row = document.createElement("div");
+          row.style.cssText = "display:flex; justify-content:space-between; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid #eee;";
+
+          var info = document.createElement("span");
+          info.innerHTML = "🎬 <strong>" + (v.title || "") + "</strong> ";
+          var link = document.createElement("a");
+          link.href = v.url || "#";
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          link.textContent = "فتح الرابط";
+          info.appendChild(link);
+
+          var delBtn = document.createElement("button");
+          delBtn.type = "button";
+          delBtn.className = "ban-btn";
+          delBtn.style.cssText = "width:auto; padding:6px 12px; font-size:13px;";
+          delBtn.textContent = "حذف الفيديو";
+          delBtn.addEventListener("click", function () {
+            db.collection("videos").doc(docSnap.id).delete()
+              .then(function () { alert("تم حذف الفيديو بنجاح!"); });
+          });
+
+          row.appendChild(info);
+          row.appendChild(delBtn);
+          box.appendChild(row);
+        });
+      });
+    }
 
     function setBanState(banned) {
       var target = document.getElementById("banTargetEmail").value.trim().toLowerCase();
-      if (!target || target === ADMIN_EMAIL) return alert("لا يمكن حظر هذا الحساب!");
+      if (!target || isAdminEmail(target)) return alert("لا يمكن حظر هذا الحساب!");
       db.collection("users").doc(target).set({ banned: banned }, { merge: true })
         .then(function () { alert(banned ? "تم حظر الحساب!" : "تم فك الحظر!"); });
     }
@@ -337,12 +436,16 @@
     function loadStudentData(email) {
       db.collection("evaluations").doc(email).onSnapshot(function (docSnap) {
         document.getElementById("studentEvaluationBox").textContent =
-          docSnap.exists ? docSnap.data().text : "لا يوجد تقييم حالياً.";
+          docSnap.exists ? docSnap.data().text : "لا يوجد تقييم أو درجة حالياً.";
       });
 
-      db.collection("videos").onSnapshot(function (snap) {
+      db.collection("videos").orderBy("createdAt", "desc").onSnapshot(function (snap) {
         var list = document.getElementById("studentVideosList");
         list.innerHTML = "";
+        if (snap.empty) {
+          list.textContent = "لا توجد فيديوهات متاحة حالياً.";
+          return;
+        }
         snap.forEach(function (docSnap) {
           var v = docSnap.data();
           var p = document.createElement("p");
