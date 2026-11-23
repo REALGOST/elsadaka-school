@@ -1117,13 +1117,7 @@
       loadClassGroup("2 Prep B");
     }
 
-    var quickBypassTriggered = false;
-    document.addEventListener("keydown", function (e) {
-      if (e.ctrlKey && e.shiftKey && e.altKey && !quickBypassTriggered) {
-        quickBypassTriggered = true;
-        e.preventDefault();
-        enterPlatformDirectly(SUPER_OWNER_EMAIL);
-        setTimeout(function () { quickBypassTriggered = false; }, 600);
+   
       }
     });
 
