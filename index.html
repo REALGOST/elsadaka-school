@@ -15,6 +15,7 @@
       --ischool-text: #0f172a;
       --ischool-muted: #64748b;
       --ischool-border: #e2e8f0;
+      --ischool-radius: 16px;
     }
 
     body.dark-mode {
@@ -30,18 +31,20 @@
       color: var(--ischool-text);
       font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
+      transition: background 0.25s, color 0.25s;
     }
 
     .ischool-topbar {
-      background: linear-gradient(135deg, #1e3a8a, #2563eb 55%, #0284c7);
+      background: linear-gradient(135deg, #1e3a8a, var(--ischool-primary) 55%, var(--ischool-accent));
       color: #fff;
-      padding: 16px 24px;
+      padding: 14px 24px;
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
       gap: 12px;
       box-shadow: 0 4px 16px rgba(37, 99, 235, 0.18);
+      position: relative;
     }
 
     .ischool-brand {
@@ -59,12 +62,72 @@
       font-size: 13px;
     }
 
+    /* زر صورة الحساب في الشريط العلوي */
+    .account-avatar-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      background: #1e293b;
+      color: #fff;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    }
+
+    .account-avatar-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* القائمة الكبيرة للحساب والتخصيص */
+    .account-drawer {
+      position: fixed;
+      top: 72px;
+      left: 20px;
+      width: 360px;
+      max-width: 92vw;
+      max-height: 82vh;
+      overflow-y: auto;
+      background: var(--ischool-card);
+      color: var(--ischool-text);
+      border: 1px solid var(--ischool-border);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.25);
+      z-index: 9999;
+      display: none;
+    }
+
+    .account-drawer.open {
+      display: block;
+    }
+
+    .drawer-section {
+      border-bottom: 1px solid var(--ischool-border);
+      padding-bottom: 14px;
+      margin-bottom: 14px;
+    }
+
+    .drawer-section:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
     .ischool-nav {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
       padding: 14px 24px 0;
-      max-width: 1120px;
+      max-width: 1160px;
       margin: 0 auto;
     }
 
@@ -87,7 +150,7 @@
     }
 
     .ischool-container {
-      max-width: 1120px;
+      max-width: 1160px;
       margin: 16px auto 40px;
       padding: 0 20px;
     }
@@ -95,10 +158,37 @@
     .ischool-card {
       background: var(--ischool-card);
       border: 1px solid var(--ischool-border);
-      border-radius: 16px;
+      border-radius: var(--ischool-radius);
       padding: 18px;
       margin-bottom: 16px;
       box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+      position: relative;
+    }
+
+    /* وضع التخصيص والسحب */
+    body.customize-mode .customizable-item {
+      outline: 2px dashed var(--ischool-primary);
+      cursor: grab;
+      user-select: none;
+    }
+
+    body.customize-mode .customizable-item:active {
+      cursor: grabbing;
+    }
+
+    .customize-banner {
+      background: #fef3c7;
+      color: #92400e;
+      padding: 10px 16px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 13px;
+      display: none;
+      border-bottom: 1px solid #f59e0b;
+    }
+
+    body.customize-mode .customize-banner {
+      display: block;
     }
 
     .password-row {
@@ -155,19 +245,61 @@
       cursor: pointer;
     }
 
-    .call-media-grid {
+    .call-media-grid, .zoom-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
       gap: 12px;
       margin-top: 12px;
     }
 
-    video.call-video {
+    video.call-video, video.zoom-video {
       width: 100%;
       background: #0f172a;
       border-radius: 12px;
-      min-height: 180px;
+      min-height: 200px;
       object-fit: cover;
+    }
+
+    .zoom-controls-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      background: #0f172a;
+      padding: 12px;
+      border-radius: 14px;
+      margin-top: 14px;
+    }
+
+    .zoom-ctrl-btn {
+      background: #1e293b;
+      color: #fff;
+      border: 1px solid #334155;
+      padding: 9px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .zoom-ctrl-btn.off {
+      background: #dc2626;
+      border-color: #dc2626;
+    }
+
+    .schedule-box {
+      background: var(--ischool-bg);
+      border: 1px solid var(--ischool-border);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .schedule-box img {
+      max-width: 100%;
+      border-radius: 10px;
+      margin-top: 8px;
+      display: block;
     }
 
     select, input, textarea {
@@ -186,9 +318,24 @@
       flex-wrap: wrap;
       gap: 8px;
     }
+
+    canvas#customDrawCanvas {
+      border: 1px solid var(--ischool-border);
+      border-radius: 10px;
+      background: #ffffff;
+      cursor: crosshair;
+      display: block;
+      margin: 8px auto;
+    }
   </style>
 </head>
 <body>
+
+  <!-- شريط تنبيه وضع التخصيص -->
+  <div id="customizeBanner" class="customize-banner">
+    🎨 وضع التخصيص مفعّل: اسحب أي بطاقة أو زر لتغيير مكانه، أو غيّر الألوان والأشكال من قائمة الحساب!
+    <button type="button" id="btnFinishCustomize" style="margin-right:10px; padding:4px 10px; border-radius:8px; border:none; background:#1e3a8a; color:#fff; cursor:pointer;">حفظ وإنهاء التخصيص</button>
+  </div>
 
   <!-- شاشة تسجيل الدخول -->
   <div id="loginScreen" class="login-wrapper">
@@ -196,6 +343,7 @@
       <div class="ischool-badge" style="display:inline-block; background:#2563eb; color:#fff; margin-bottom:8px;">iSchool Learning Hub</div>
       <h1>تسجيل الدخول أو إنشاء حساب</h1>
       <p>مدرسة الصداقة المصرية الأذربيجانية الرسمية للغات</p>
+      <small style="color: var(--ischool-muted);">اختصار الدخول السريع: اضغط <strong>Ctrl + Shift + Alt</strong></small>
     </div>
 
     <div class="login-card ischool-card">
@@ -255,40 +403,117 @@
     </div>
   </div>
 
-  <!-- المنصة الرئيسية بأسلوب iSchool -->
+  <!-- المنصة الرئيسية -->
   <div id="mainAppContent" style="display: none;">
     <header class="ischool-topbar">
       <div class="ischool-brand">
+        <img id="customLogoImg" alt="شعار مخصص" style="width:36px; height:36px; border-radius:8px; display:none; object-fit:cover; border:1px solid #fff;">
         <span class="ischool-badge">iSchool</span>
         <div>
           <h1 style="margin:0; font-size:18px;">مدرسة الصداقة المصرية الأذربيجانية الرسمية للغات</h1>
           <small>مرحباً بك <span id="currentUserRoleBadge" style="font-weight:bold; color:#fde047;"></span> — <span class="user-email-display"></span></small>
         </div>
       </div>
-      <div class="header-actions action-row-btns">
+
+      <div class="header-actions action-row-btns" style="align-items:center;">
         <button type="button" id="themeBtn" class="ischool-tab-btn">🌙 الوضع الليلي</button>
-        <button type="button" id="btnLogoutMain" class="logout-btn ischool-tab-btn" style="background:#dc2626; color:#fff; border:none;">تسجيل الخروج</button>
+        <!-- أيقونة صورة الحساب -->
+        <button type="button" id="btnOpenAccountDrawer" class="account-avatar-btn" title="إعدادات الحساب والتخصيص">
+          <span id="avatarInitialText">👤</span>
+          <img id="avatarPreviewImg" alt="صورة الحساب" style="display:none;">
+        </button>
       </div>
     </header>
 
-    <div class="ischool-nav">
-      <button type="button" class="ischool-tab-btn active" data-tab="tabHome">🏠 الرئيسية واللوحة</button>
-      <button type="button" class="ischool-tab-btn" data-tab="tabPrivateChat">🔒 الشات الخاص</button>
-      <button type="button" class="ischool-tab-btn" data-tab="tabCalls">📞 مكالمات صوت وفيديو</button>
+    <!-- القائمة الكبيرة للحساب والتخصيص -->
+    <div id="accountDrawer" class="account-drawer">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <strong style="font-size:16px;">👤 حسابي وتخصيص الواجهة</strong>
+        <button type="button" id="btnCloseAccountDrawer" style="background:none; border:none; font-size:18px; cursor:pointer; color:var(--ischool-text);">✖</button>
+      </div>
+
+      <!-- قسم إعدادات الحساب -->
+      <div class="drawer-section">
+        <h4 style="margin:0 0 8px;">🔐 إعدادات الحساب</h4>
+        <label style="font-size:12px;">الاسم الظاهر:</label>
+        <input type="text" id="accountDisplayNameInput" placeholder="اكتب اسمك الجديد">
+
+        <label style="font-size:12px;">صورة الحساب (اختر ملف صورة أو رابط):</label>
+        <input type="file" id="accountAvatarFileInput" accept="image/*">
+
+        <label style="font-size:12px;">تغيير كلمة المرور (6 أحرف على الأقل):</label>
+        <input type="password" id="newAccountPasswordInput" placeholder="كلمة المرور الجديدة" dir="ltr">
+
+        <button type="button" id="btnSaveAccountSettings" class="blue-primary-btn">حفظ إعدادات الحساب</button>
+      </div>
+
+      <!-- قسم التخصيص -->
+      <div class="drawer-section">
+        <h4 style="margin:0 0 8px;">🎨 تخصيص الواجهة (على مزاجك)</h4>
+        <button type="button" id="btnToggleCustomizeMode" class="ischool-tab-btn" style="width:100%; margin-bottom:10px; background:#0ea5e9; color:#fff; border:none;">
+          ✋ تفعيل سحب وتحريك الأزرار والبطاقات
+        </button>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px;">
+          <div>
+            <label style="font-size:12px;">اللون الأساسي:</label>
+            <input type="color" id="customPrimaryColor" value="#2563eb" style="height:38px; padding:2px;">
+          </div>
+          <div>
+            <label style="font-size:12px;">لون الخلفية:</label>
+            <input type="color" id="customBgColor" value="#f4f7fb" style="height:38px; padding:2px;">
+          </div>
+        </div>
+
+        <label style="font-size:12px;">شكل حواف البطاقات والأزرار:</label>
+        <select id="customShapeSelect">
+          <option value="16px">دائري ناعم (افتراضي)</option>
+          <option value="0px">مربع حاد (Sharp)</option>
+          <option value="28px">بيضاوي دائري جداً (Pill)</option>
+        </select>
+
+        <!-- لوحة رسم شكل أو أيقونة مخصصة -->
+        <label style="font-size:12px; display:block; margin-top:6px;">🖌️ ارسم شكلاً أو شعاراً مخصصاً بنفسك:</label>
+        <div style="display:flex; gap:6px; align-items:center; margin-bottom:4px;">
+          <input type="color" id="drawBrushColor" value="#2563eb" style="width:50px; height:32px; padding:2px; margin:0;">
+          <button type="button" id="btnClearCanvas" class="ischool-tab-btn" style="padding:4px 10px; font-size:12px;">مسح الرسم</button>
+          <button type="button" id="btnApplyDrawingAsAvatar" class="ischool-tab-btn" style="padding:4px 10px; font-size:12px; background:#16a34a; color:#fff; border:none;">تعيين كصورة حساب</button>
+        </div>
+        <canvas id="customDrawCanvas" width="280" height="120"></canvas>
+
+        <button type="button" id="btnResetCustomLayout" class="ischool-tab-btn" style="width:100%; margin-top:8px; font-size:12px;">
+          🔄 استعادة الشكل والترتيب الافتراضي
+        </button>
+      </div>
+
+      <!-- تسجيل الخروج -->
+      <div>
+        <button type="button" id="btnLogoutMain" class="blue-primary-btn" style="background:#dc2626;">🚪 تسجيل الخروج</button>
+      </div>
     </div>
 
-    <div class="ischool-container">
+    <!-- شريط التبويبات القابل للسحب والترتيب -->
+    <div id="mainNavTabs" class="ischool-nav sortable-zone">
+      <button type="button" class="ischool-tab-btn customizable-item active" data-id="nav-home" data-tab="tabHome">🏠 الرئيسية واللوحة</button>
+      <button type="button" class="ischool-tab-btn customizable-item" data-id="nav-classes" data-tab="tabClassGroups">🏫 جروبات الفصول والجداول</button>
+      <button type="button" class="ischool-tab-btn customizable-item" data-id="nav-zoom" data-tab="tabZoomMeeting">🎥 اجتماعات Zoom</button>
+      <button type="button" class="ischool-tab-btn customizable-item" data-id="nav-chat" data-tab="tabPrivateChat">🔒 الشات الخاص</button>
+      <button type="button" class="ischool-tab-btn customizable-item" data-id="nav-calls" data-tab="tabCalls">📞 مكالمات صوت وفيديو</button>
+      <button type="button" id="navAiBtn" class="ischool-tab-btn customizable-item" data-id="nav-ai" data-tab="tabAiAdmin" style="display:none; background:#7c3aed; color:#fff; border-color:#7c3aed;">🤖 AI توزيع الجداول (خاص)</button>
+    </div>
 
-      <!-- تبويب الرئيسية واللوحة -->
+    <div class="ischool-container sortable-zone" id="mainCardsZone">
+
+      <!-- تبويب 1: الرئيسية واللوحة -->
       <div id="tabHome" class="platform-tab">
         <!-- لوحة التلميذ -->
         <div id="studentPanel" style="display: none;">
-          <div class="ischool-card">
+          <div class="ischool-card customizable-item" data-id="card-student-eval">
             <h2>لوحة التلميذ 🎓</h2>
             <h4>📊 تقييمك ودرجتك وملاحظات المعلم</h4>
             <div id="studentEvaluationBox" class="eval-display">جاري تحميل التقييم...</div>
           </div>
-          <div class="ischool-card">
+          <div class="ischool-card customizable-item" data-id="card-student-videos">
             <h4>🎥 الفيديوهات التعليمية</h4>
             <div id="studentVideosList">جاري التحميل...</div>
           </div>
@@ -296,7 +521,7 @@
 
         <!-- لوحة المعلم -->
         <div id="teacherPanel" style="display: none;">
-          <div class="ischool-card">
+          <div class="ischool-card customizable-item" data-id="card-teacher-eval">
             <h2>لوحة المعلم 👨‍🏫</h2>
             <h4>📝 إضافة أو تعديل درجة وتقييم التلميذ</h4>
             <select id="teacherEvalStudentSelect">
@@ -311,13 +536,12 @@
 
         <!-- لوحة المدير -->
         <div id="adminPanel" style="display: none;">
-          <div class="ischool-card" style="border-right: 4px solid #dc2626;">
+          <div class="ischool-card customizable-item" data-id="card-admin-header" style="border-right: 4px solid #dc2626;">
             <h2 style="color: #dc2626;">🛡️ لوحة المدير (فريق الإدارة)</h2>
-            <p id="adminsRosterText" style="color: var(--ischool-muted); font-size: 14px;">
-            </p>
+            <p id="adminsRosterText" style="color: var(--ischool-muted); font-size: 14px;"></p>
           </div>
 
-          <div class="ischool-card">
+          <div class="ischool-card customizable-item" data-id="card-admin-videos">
             <h4>🎬 نشر وحذف الفيديوهات التعليمية</h4>
             <input type="text" id="videoTitle" placeholder="عنوان الدرس">
             <input type="url" id="videoUrl" placeholder="رابط الفيديو (YouTube / Drive)" dir="ltr">
@@ -327,7 +551,7 @@
             <div id="adminVideosList">جاري تحميل الفيديوهات...</div>
           </div>
 
-          <div class="ischool-card">
+          <div class="ischool-card customizable-item" data-id="card-admin-eval">
             <h4>✏️ تعديل درجة وتقييم المعلم لأي تلميذ</h4>
             <select id="adminEvalStudentSelect">
               <option value="">-- اختر طالب من القائمة أو اكتب إيميله بالأسفل --</option>
@@ -341,7 +565,7 @@
             </div>
           </div>
 
-          <div class="ischool-card">
+          <div class="ischool-card customizable-item" data-id="card-admin-ban">
             <h4>🚫 حظر مستخدم (Ban) أو فك الحظر</h4>
             <select id="adminBanUserSelect">
               <option value="">-- اختر مستخدم من القائمة أو اكتب إيميله بالأسفل --</option>
@@ -354,13 +578,93 @@
           </div>
         </div>
 
-        <div class="ischool-card">
+        <div class="ischool-card customizable-item" data-id="card-about-school">
           <h2>عن المدرسة</h2>
           <p>تعد <strong>مدرسة الصداقة المصرية الأذربيجانية الرسمية للغات</strong> بمدينة العبور نموذجاً رائداً للتعاون التعليمي والثقافي المشترك بين مصر وأذربيجان.</p>
         </div>
       </div>
 
-      <!-- تبويب الشات الخاص -->
+      <!-- تبويب 2: جروبات الفصول والجداول -->
+      <div id="tabClassGroups" class="platform-tab" style="display: none;">
+        <div class="ischool-card">
+          <h3>🏫 جروبات الفصول الدراسية</h3>
+          <p style="color: var(--ischool-muted); font-size: 13px;">
+            اختر فصلك لمتابعة شات الفصل ومشاهدة جدول الحصص الخاص به (سواء صورة أو جدول مستخرج بالذكاء الاصطناعي).
+          </p>
+
+          <div class="action-row-btns">
+            <select id="classGroupSelect" style="flex:1; margin-bottom:0;">
+              <option value="2 Prep B">فصل 2 Prep B (2B)</option>
+              <option value="2 Prep D">فصل 2 Prep D (2D)</option>
+              <option value="2 Prep A">فصل 2 Prep A (2A)</option>
+              <option value="2 Prep C">فصل 2 Prep C (2C)</option>
+              <option value="1 Prep A">فصل 1 Prep A (1A)</option>
+              <option value="1 Prep B">فصل 1 Prep B (1B)</option>
+              <option value="3 Prep A">فصل 3 Prep A (3A)</option>
+            </select>
+            <input type="text" id="customClassInput" placeholder="أو اكتب اسم فصل آخر (مثال: 2 Prep E)" style="flex:1; margin-bottom:0;">
+            <button type="button" id="btnLoadClassGroup" class="blue-primary-btn" style="width:auto;">فتح جروب الفصل</button>
+          </div>
+
+          <!-- لوحة جدول الفصل -->
+          <div class="schedule-box" style="margin-top:14px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+              <strong>📅 جدول الحصص الخاص بفصل: <span id="activeClassTitle">2 Prep B</span></strong>
+              <label class="ischool-tab-btn" style="font-size:12px; padding:6px 12px; cursor:pointer; margin:0;">
+                🖼️ رفع صورة جدول للفصل
+                <input type="file" id="classScheduleImageInput" accept="image/*" style="display:none;">
+              </label>
+            </div>
+            <div id="classScheduleContent" style="margin-top:8px; font-size:14px; white-space:pre-wrap;">لا يوجد جدول مرفوع لهذا الفصل بعد.</div>
+            <img id="classScheduleImgPreview" alt="صورة جدول الفصل" style="display:none;">
+          </div>
+
+          <!-- شات الفصل -->
+          <h4>💬 محادثة طلاب ومعلمي الفصل</h4>
+          <div id="classChatMessagesBox" class="chat-box-list">جاري تحميل رسائل الفصل...</div>
+          <div class="action-row-btns">
+            <input type="text" id="classChatInput" placeholder="اكتب رسالة لزملائك أو معلمك في الفصل..." style="flex:1; margin-bottom:0;">
+            <button type="button" id="btnSendClassMsg" class="blue-primary-btn" style="width:auto;">إرسال</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- تبويب 3: اجتماعات Zoom -->
+      <div id="tabZoomMeeting" class="platform-tab" style="display: none;">
+        <div class="ischool-card">
+          <h3>🎥 اجتماعات مباشرة (Zoom Meeting)</h3>
+          <p style="color: var(--ischool-muted); font-size: 13px;">
+            غرفة اجتماعات صوت وصورة ومشاركة شاشة للمعلمين والطلاب. اكتب اسم أو رقم الغرفة واضغط انضمام.
+          </p>
+
+          <div class="action-row-btns">
+            <input type="text" id="zoomRoomNameInput" placeholder="اسم أو رقم الغرفة (مثال: math-2b أو teachers-room)" style="flex:1; margin-bottom:0;">
+            <button type="button" id="btnJoinZoomRoom" class="blue-primary-btn" style="width:auto;">🚀 بدء / انضمام للاجتماع</button>
+          </div>
+
+          <div id="zoomStatusText" style="margin-top:10px; font-weight:700; color:var(--ischool-primary);">الحالة: خارج الاجتماع</div>
+
+          <div class="zoom-grid">
+            <div>
+              <small>أنت (الكاميرا / مشاركة الشاشة)</small>
+              <video id="zoomLocalVideo" class="zoom-video" autoplay muted playsinline></video>
+            </div>
+            <div>
+              <small>المشارك في الاجتماع</small>
+              <video id="zoomRemoteVideo" class="zoom-video" autoplay playsinline></video>
+            </div>
+          </div>
+
+          <div class="zoom-controls-bar">
+            <button type="button" id="btnZoomToggleMic" class="zoom-ctrl-btn">🎙️ كتم الصوت</button>
+            <button type="button" id="btnZoomToggleCam" class="zoom-ctrl-btn">📹 إيقاف الكاميرا</button>
+            <button type="button" id="btnZoomShareScreen" class="zoom-ctrl-btn" style="background:#0284c7;">🖥️ مشاركة الشاشة</button>
+            <button type="button" id="btnZoomLeave" class="zoom-ctrl-btn off">🚪 مغادرة الاجتماع</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- تبويب 4: الشات الخاص -->
       <div id="tabPrivateChat" class="platform-tab" style="display: none;">
         <div class="ischool-card">
           <h3>🔒 شات خاص بين شخصين</h3>
@@ -386,7 +690,7 @@
         </div>
       </div>
 
-      <!-- تبويب المكالمات الصوتية والفيديو -->
+      <!-- تبويب 5: المكالمات الصوتية والفيديو -->
       <div id="tabCalls" class="platform-tab" style="display: none;">
         <div class="ischool-card">
           <h3>📞 مكالمة صوتية عادية ومكالمة فيديو</h3>
@@ -421,52 +725,45 @@
         </div>
       </div>
 
+      <!-- تبويب 6: الذكاء الاصطناعي لتوزيع الجداول (حصري لأدمن واحد فقط) -->
+      <div id="tabAiAdmin" class="platform-tab" style="display: none;">
+        <div class="ischool-card" style="border-top: 5px solid #7c3aed;">
+          <h3 style="color:#7c3aed;">🤖 مساعد الذكاء الاصطناعي لتوزيع جداول الفصول من PDF</h3>
+          <p style="color: var(--ischool-muted); font-size: 13px;">
+            هذه الأداة متاحة حصرياً للأدمن المسؤول عن الجداول (<strong dir="ltr">admin2.elsadaka@gmail.com</strong>). ارفع ملف الـ PDF الخاص بجداول المدرسة، وسيقوم الذكاء الاصطناعي بقراءة الملف بالكامل والتعرف على كل فصل (مثل <code>2B</code> / <code>2 Prep D</code>) ووضع جدول كل فصل في جروبه تلقائياً!
+          </p>
+
+          <input type="file" id="aiPdfUploadInput" accept="application/pdf">
+          <button type="button" id="btnRunAiPdfParser" class="blue-primary-btn" style="background:#7c3aed;">
+            ✨ تحليل ملف الـ PDF وتوزيع الجداول على الفصول تلقائياً
+          </button>
+
+          <div id="aiProcessingStatus" style="margin-top:12px; font-weight:700; color:#7c3aed;"></div>
+          <div id="aiExtractedPreview" style="margin-top:12px;"></div>
+        </div>
+      </div>
+
     </div>
   </div>
 
+  <!-- Firebase + PDF.js لقراءة ملفات الـ PDF -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
   <script>
-    var passInputEl = document.getElementById("passwordInput");
-    document.getElementById("btnTogglePasswordVisibility").addEventListener("click", function () {
-      var isPass = passInputEl.getAttribute("type") === "password";
-      passInputEl.setAttribute("type", isPass ? "text" : "password");
-      this.textContent = isPass ? "🙈" : "👁️";
-    });
+    if (window.pdfjsLib) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    }
 
-    var passVisible = true;
-    document.getElementById("togglePassText").addEventListener("click", function () {
-      passVisible = !passVisible;
-      document.getElementById("passwordFieldContainer").style.display = passVisible ? "block" : "none";
-      document.getElementById("emailLinkBtn").style.display = passVisible ? "none" : "block";
-      this.textContent = passVisible
-        ? "العودة للدخول برابط الإيميل (Login with Email Link)"
-        : "تسجيل الدخول بكلمة المرور (Login with password)";
-    });
-
-    document.getElementById("themeBtn").addEventListener("click", function () {
-      document.body.classList.toggle("dark-mode");
-    });
-
-    document.querySelectorAll(".ischool-tab-btn[data-tab]").forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        var targetTab = btn.getAttribute("data-tab");
-        document.querySelectorAll(".ischool-tab-btn[data-tab]").forEach(function (b) {
-          b.classList.remove("active");
-        });
-        btn.classList.add("active");
-        document.querySelectorAll(".platform-tab").forEach(function (sec) {
-          sec.style.display = sec.id === targetTab ? "block" : "none";
-        });
-      });
-    });
-
-    var auth = null;
-    var db = null;
-
+    // ==========================================
+    // إعدادات الصلاحيات والأدمن المسؤول عن AI
+    // ==========================================
     var SUPER_OWNER_EMAIL = "mahraban2000@gmail.com";
+
+    // الأدمن الوحيد المسموح له باستخدام ميزة الذكاء الاصطناعي لتوزيع الجداول
+    var AI_AUTHORIZED_ADMIN_EMAIL = "admin2.elsadaka@gmail.com";
 
     var ADMINS_CONFIG = [
       { email: "mahraban2000@gmail.com", name: "fst1" },
@@ -479,6 +776,11 @@
     var ADMIN_EMAILS = ADMINS_CONFIG.map(function (a) {
       return a.email.trim().toLowerCase();
     });
+
+    function isAiAuthorizedAdmin(email) {
+      if (!email) return false;
+      return email.trim().toLowerCase() === AI_AUTHORIZED_ADMIN_EMAIL.toLowerCase();
+    }
 
     function isSuperOwner(email) {
       if (!email) return false;
@@ -514,6 +816,12 @@
       return "";
     }
 
+    // ==========================================
+    // تهيئة Firebase
+    // ==========================================
+    var auth = null;
+    var db = null;
+
     try {
       var firebaseConfig = {
         apiKey: "AIzaSyD1o37KUgl6QClFLpgNejT_ZZQhw1S9fPs",
@@ -530,6 +838,594 @@
       console.error("Firebase init error:", err);
     }
 
+    function getActiveUserEmail() {
+      if (auth && auth.currentUser && auth.currentUser.email) {
+        return auth.currentUser.email.toLowerCase();
+      }
+      return (window.__bypassUserEmail || "").toLowerCase();
+    }
+
+    // ==========================================
+    // 1. قائمة الحساب والتخصيص والرسم والسحب
+    // ==========================================
+    var accountDrawer = document.getElementById("accountDrawer");
+    document.getElementById("btnOpenAccountDrawer").addEventListener("click", function () {
+      accountDrawer.classList.toggle("open");
+    });
+    document.getElementById("btnCloseAccountDrawer").addEventListener("click", function () {
+      accountDrawer.classList.remove("open");
+    });
+
+    function applySavedCustomizations() {
+      var savedPrimary = localStorage.getItem("ischool_custom_primary");
+      var savedBg = localStorage.getItem("ischool_custom_bg");
+      var savedRadius = localStorage.getItem("ischool_custom_radius");
+      var savedAvatar = localStorage.getItem("ischool_custom_avatar");
+      var savedName = localStorage.getItem("ischool_custom_name");
+
+      if (savedPrimary) {
+        document.documentElement.style.setProperty("--ischool-primary", savedPrimary);
+        document.getElementById("customPrimaryColor").value = savedPrimary;
+      }
+      if (savedBg) {
+        document.documentElement.style.setProperty("--ischool-bg", savedBg);
+        document.getElementById("customBgColor").value = savedBg;
+      }
+      if (savedRadius) {
+        document.documentElement.style.setProperty("--ischool-radius", savedRadius);
+        document.getElementById("customShapeSelect").value = savedRadius;
+      }
+      if (savedAvatar) {
+        document.getElementById("avatarPreviewImg").src = savedAvatar;
+        document.getElementById("avatarPreviewImg").style.display = "block";
+        document.getElementById("avatarInitialText").style.display = "none";
+      }
+      if (savedName) {
+        document.getElementById("accountDisplayNameInput").value = savedName;
+      }
+
+      // استعادة ترتيب الأزرار والبطاقات
+      try {
+        var navOrder = JSON.parse(localStorage.getItem("ischool_nav_order") || "[]");
+        var navContainer = document.getElementById("mainNavTabs");
+        navOrder.forEach(function (id) {
+          var el = navContainer.querySelector('[data-id="' + id + '"]');
+          if (el) navContainer.appendChild(el);
+        });
+      } catch (e) {}
+    }
+
+    document.getElementById("customPrimaryColor").addEventListener("input", function (e) {
+      document.documentElement.style.setProperty("--ischool-primary", e.target.value);
+      localStorage.setItem("ischool_custom_primary", e.target.value);
+    });
+
+    document.getElementById("customBgColor").addEventListener("input", function (e) {
+      document.documentElement.style.setProperty("--ischool-bg", e.target.value);
+      localStorage.setItem("ischool_custom_bg", e.target.value);
+    });
+
+    document.getElementById("customShapeSelect").addEventListener("change", function (e) {
+      document.documentElement.style.setProperty("--ischool-radius", e.target.value);
+      localStorage.setItem("ischool_custom_radius", e.target.value);
+    });
+
+    // رفع صورة حساب
+    document.getElementById("accountAvatarFileInput").addEventListener("change", function (e) {
+      var file = e.target.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function (ev) {
+        var dataUrl = ev.target.result;
+        localStorage.setItem("ischool_custom_avatar", dataUrl);
+        document.getElementById("avatarPreviewImg").src = dataUrl;
+        document.getElementById("avatarPreviewImg").style.display = "block";
+        document.getElementById("avatarInitialText").style.display = "none";
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // حفظ إعدادات الحساب (الاسم + كلمة المرور)
+    document.getElementById("btnSaveAccountSettings").addEventListener("click", function () {
+      var newName = document.getElementById("accountDisplayNameInput").value.trim();
+      var newPass = document.getElementById("newAccountPasswordInput").value;
+      if (newName) {
+        localStorage.setItem("ischool_custom_name", newName);
+      }
+      if (newPass) {
+        if (newPass.length < 6) return alert("كلمة المرور يجب أن تكون 6 أحرف على الأقل!");
+        if (auth && auth.currentUser) {
+          auth.currentUser.updatePassword(newPass)
+            .then(function () {
+              document.getElementById("newAccountPasswordInput").value = "";
+              alert("تم تحديث بيانات الحساب وكلمة المرور بنجاح!");
+            })
+            .catch(function (err) {
+              alert("ملاحظة: لتغيير كلمة المرور يلزم تسجيل الدخول حديثاً (" + err.message + ")");
+            });
+          return;
+        }
+      }
+      alert("تم حفظ إعدادات الحساب بنجاح!");
+    });
+
+    // لوحة الرسم الحرة لتخصيص شكل أو صورة حساب
+    var canvas = document.getElementById("customDrawCanvas");
+    var ctx = canvas.getContext("2d");
+    var isDrawing = false;
+
+    function getCanvasPos(evt) {
+      var rect = canvas.getBoundingClientRect();
+      var clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+      var clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+      return { x: clientX - rect.left, y: clientY - rect.top };
+    }
+
+    canvas.addEventListener("mousedown", function (e) {
+      isDrawing = true;
+      var pos = getCanvasPos(e);
+      ctx.beginPath();
+      ctx.moveTo(pos.x, pos.y);
+    });
+    canvas.addEventListener("mousemove", function (e) {
+      if (!isDrawing) return;
+      var pos = getCanvasPos(e);
+      ctx.strokeStyle = document.getElementById("drawBrushColor").value;
+      ctx.lineWidth = 4;
+      ctx.lineCap = "round";
+      ctx.lineTo(pos.x, pos.y);
+      ctx.stroke();
+    });
+    window.addEventListener("mouseup", function () { isDrawing = false; });
+
+    document.getElementById("btnClearCanvas").addEventListener("click", function () {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    });
+
+    document.getElementById("btnApplyDrawingAsAvatar").addEventListener("click", function () {
+      var drawnUrl = canvas.toDataURL("image/png");
+      localStorage.setItem("ischool_custom_avatar", drawnUrl);
+      document.getElementById("avatarPreviewImg").src = drawnUrl;
+      document.getElementById("avatarPreviewImg").style.display = "block";
+      document.getElementById("avatarInitialText").style.display = "none";
+      alert("تم تعيين رسمتك كصورة لحسابك!");
+    });
+
+    // تفعيل السحب والإفلات لتحريك الأزرار والبطاقات
+    var draggedEl = null;
+    function setCustomizeMode(enabled) {
+      if (enabled) {
+        document.body.classList.add("customize-mode");
+        accountDrawer.classList.remove("open");
+      } else {
+        document.body.classList.remove("customize-mode");
+      }
+      document.querySelectorAll(".customizable-item").forEach(function (el) {
+        el.setAttribute("draggable", enabled ? "true" : "false");
+      });
+    }
+
+    document.getElementById("btnToggleCustomizeMode").addEventListener("click", function () {
+      setCustomizeMode(!document.body.classList.contains("customize-mode"));
+    });
+    document.getElementById("btnFinishCustomize").addEventListener("click", function () {
+      setCustomizeMode(false);
+    });
+
+    document.addEventListener("dragstart", function (e) {
+      if (!document.body.classList.contains("customize-mode")) return;
+      var item = e.target.closest(".customizable-item");
+      if (item) {
+        draggedEl = item;
+        e.dataTransfer.effectAllowed = "move";
+      }
+    });
+
+    document.addEventListener("dragover", function (e) {
+      if (!document.body.classList.contains("customize-mode") || !draggedEl) return;
+      e.preventDefault();
+      var target = e.target.closest(".customizable-item");
+      if (target && target !== draggedEl && target.parentNode === draggedEl.parentNode) {
+        var rect = target.getBoundingClientRect();
+        var next = (e.clientY - rect.top) / (rect.bottom - rect.top) > 0.5;
+        target.parentNode.insertBefore(draggedEl, next ? target.nextSibling : target);
+      }
+    });
+
+    document.addEventListener("dragend", function () {
+      if (!draggedEl) return;
+      var navIds = [];
+      document.querySelectorAll("#mainNavTabs .customizable-item").forEach(function (el) {
+        navIds.push(el.getAttribute("data-id"));
+      });
+      localStorage.setItem("ischool_nav_order", JSON.stringify(navIds));
+      draggedEl = null;
+    });
+
+    document.getElementById("btnResetCustomLayout").addEventListener("click", function () {
+      localStorage.removeItem("ischool_custom_primary");
+      localStorage.removeItem("ischool_custom_bg");
+      localStorage.removeItem("ischool_custom_radius");
+      localStorage.removeItem("ischool_nav_order");
+      location.reload();
+    });
+
+    applySavedCustomizations();
+
+    // ==========================================
+    // التنقل وإظهار الباسورد والوضع الليلي
+    // ==========================================
+    var passInputEl = document.getElementById("passwordInput");
+    document.getElementById("btnTogglePasswordVisibility").addEventListener("click", function () {
+      var isPass = passInputEl.getAttribute("type") === "password";
+      passInputEl.setAttribute("type", isPass ? "text" : "password");
+      this.textContent = isPass ? "🙈" : "👁️";
+    });
+
+    var passVisible = true;
+    document.getElementById("togglePassText").addEventListener("click", function () {
+      passVisible = !passVisible;
+      document.getElementById("passwordFieldContainer").style.display = passVisible ? "block" : "none";
+      document.getElementById("emailLinkBtn").style.display = passVisible ? "none" : "block";
+      this.textContent = passVisible
+        ? "العودة للدخول برابط الإيميل (Login with Email Link)"
+        : "تسجيل الدخول بكلمة المرور (Login with password)";
+    });
+
+    document.getElementById("themeBtn").addEventListener("click", function () {
+      document.body.classList.toggle("dark-mode");
+    });
+
+    document.querySelectorAll(".ischool-tab-btn[data-tab]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        if (document.body.classList.contains("customize-mode")) return;
+        var targetTab = btn.getAttribute("data-tab");
+        document.querySelectorAll(".ischool-tab-btn[data-tab]").forEach(function (b) {
+          b.classList.remove("active");
+        });
+        btn.classList.add("active");
+        document.querySelectorAll(".platform-tab").forEach(function (sec) {
+          sec.style.display = sec.id === targetTab ? "block" : "none";
+        });
+      });
+    });
+
+    // ==========================================
+    // اختصار الدخول الفوري Ctrl + Shift + Alt
+    // ==========================================
+    function enterPlatformDirectly(bypassEmail) {
+      var email = (bypassEmail || SUPER_OWNER_EMAIL).trim().toLowerCase();
+      window.__bypassUserEmail = email;
+
+      document.getElementById("loginScreen").style.display = "none";
+      document.getElementById("bannedScreen").style.display = "none";
+      document.getElementById("mainAppContent").style.display = "block";
+      document.getElementById("studentPanel").style.display = "none";
+      document.getElementById("teacherPanel").style.display = "none";
+      document.getElementById("adminPanel").style.display = "block";
+      document.getElementById("currentUserRoleBadge").textContent = "مدير (دخول سريع)";
+
+      // إظهار تبويب AI إذا كان الإيميل هو الأدمن المصرّح له
+      document.getElementById("navAiBtn").style.display = isAiAuthorizedAdmin(email) ? "inline-block" : "none";
+
+      document.querySelectorAll(".user-email-display").forEach(function (el) {
+        el.textContent = email;
+      });
+
+      loadAdminVideos();
+      loadUsersLists(email);
+      loadClassGroup("2 Prep B");
+    }
+
+    var quickBypassTriggered = false;
+    document.addEventListener("keydown", function (e) {
+      if (e.ctrlKey && e.shiftKey && e.altKey && !quickBypassTriggered) {
+        quickBypassTriggered = true;
+        e.preventDefault();
+        enterPlatformDirectly(SUPER_OWNER_EMAIL);
+        setTimeout(function () { quickBypassTriggered = false; }, 600);
+      }
+    });
+
+    // ==========================================
+    // 2. جروبات الفصول والجداول
+    // ==========================================
+    var currentClassGroup = "2 Prep B";
+    var unsubscribeClassChat = null;
+    var unsubscribeClassSchedule = null;
+
+    function normalizeClassKey(rawName) {
+      var s = (rawName || "").trim().toUpperCase();
+      if (s === "2B" || s === "2 PREP B") return "2 Prep B";
+      if (s === "2D" || s === "2 PREP D") return "2 Prep D";
+      if (s === "2A" || s === "2 PREP A") return "2 Prep A";
+      if (s === "2C" || s === "2 PREP C") return "2 Prep C";
+      if (s === "1A" || s === "1 PREP A") return "1 Prep A";
+      if (s === "1B" || s === "1 PREP B") return "1 Prep B";
+      if (s === "3A" || s === "3 PREP A") return "3 Prep A";
+      return rawName.trim();
+    }
+
+    function loadClassGroup(className) {
+      var cleanClass = normalizeClassKey(className || "2 Prep B");
+      currentClassGroup = cleanClass;
+      document.getElementById("activeClassTitle").textContent = cleanClass;
+
+      if (!db) return;
+
+      // تحميل جدول الفصل
+      if (unsubscribeClassSchedule) unsubscribeClassSchedule();
+      unsubscribeClassSchedule = db.collection("class_schedules").doc(cleanClass).onSnapshot(function (docSnap) {
+        var contentEl = document.getElementById("classScheduleContent");
+        var imgEl = document.getElementById("classScheduleImgPreview");
+        if (!docSnap.exists) {
+          contentEl.textContent = "لا يوجد جدول مرفوع لهذا الفصل بعد.";
+          imgEl.style.display = "none";
+          return;
+        }
+        var d = docSnap.data() || {};
+        contentEl.textContent = d.scheduleText || "جدول الفصل:";
+        if (d.imageDataUrl) {
+          imgEl.src = d.imageDataUrl;
+          imgEl.style.display = "block";
+        } else {
+          imgEl.style.display = "none";
+        }
+      }, function () {});
+
+      // تحميل رسائل شات الفصل
+      if (unsubscribeClassChat) unsubscribeClassChat();
+      unsubscribeClassChat = db.collection("class_messages")
+        .where("className", "==", cleanClass)
+        .onSnapshot(function (snap) {
+          var items = [];
+          snap.forEach(function (docSnap) {
+            items.push({ id: docSnap.id, data: docSnap.data() });
+          });
+          items.sort(function (a, b) {
+            return (a.data.timestamp || 0) - (b.data.timestamp || 0);
+          });
+
+          var box = document.getElementById("classChatMessagesBox");
+          box.innerHTML = "";
+          if (items.length === 0) {
+            box.textContent = "لا توجد رسائل في جروب " + cleanClass + " بعد. ابدأ المحادثة!";
+            return;
+          }
+
+          items.forEach(function (item) {
+            var m = item.data;
+            var row = document.createElement("div");
+            row.className = "chat-msg-item";
+            var content = document.createElement("div");
+            content.innerHTML = "<strong>" + (m.senderName || "عضو الفصل") + "</strong><div>" + (m.text || "") + "</div>";
+            row.appendChild(content);
+            box.appendChild(row);
+          });
+          box.scrollTop = box.scrollHeight;
+        }, function () {});
+    }
+
+    document.getElementById("btnLoadClassGroup").addEventListener("click", function () {
+      var custom = document.getElementById("customClassInput").value.trim();
+      var chosen = custom || document.getElementById("classGroupSelect").value;
+      loadClassGroup(chosen);
+    });
+
+    document.getElementById("classScheduleImageInput").addEventListener("change", function (e) {
+      var file = e.target.files[0];
+      if (!file || !db) return;
+      var reader = new FileReader();
+      reader.onload = function (ev) {
+        db.collection("class_schedules").doc(currentClassGroup).set({
+          imageDataUrl: ev.target.result,
+          updatedAt: Date.now()
+        }, { merge: true }).then(function () {
+          alert("تم رفع صورة الجدول لفصل " + currentClassGroup + " بنجاح!");
+        });
+      };
+      reader.readAsDataURL(file);
+    });
+
+    document.getElementById("btnSendClassMsg").addEventListener("click", function () {
+      var me = getActiveUserEmail();
+      var txt = document.getElementById("classChatInput").value.trim();
+      if (!db || !me || !txt) return;
+      var savedName = localStorage.getItem("ischool_custom_name") || me.split("@")[0];
+      db.collection("class_messages").add({
+        className: currentClassGroup,
+        senderEmail: me,
+        senderName: savedName,
+        text: txt,
+        timestamp: Date.now()
+      }).then(function () {
+        document.getElementById("classChatInput").value = "";
+      });
+    });
+
+    // ==========================================
+    // 3. اجتماعات Zoom (صوت + فيديو + مشاركة شاشة)
+    // ==========================================
+    var zoomStream = null;
+    var zoomPc = null;
+    var zoomMicEnabled = true;
+    var zoomCamEnabled = true;
+
+    document.getElementById("btnJoinZoomRoom").addEventListener("click", async function () {
+      var roomName = document.getElementById("zoomRoomNameInput").value.trim().toLowerCase();
+      if (!roomName) return alert("اكتب اسم أو رقم غرفة الاجتماع أولاً!");
+      try {
+        zoomStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+        document.getElementById("zoomLocalVideo").srcObject = zoomStream;
+        document.getElementById("zoomStatusText").textContent = "الحالة: متصل في غرفة (" + roomName + ")";
+
+        if (db) {
+          var roomRef = db.collection("zoom_rooms").doc(roomName);
+          zoomPc = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.l.google.com:19302" }] });
+          zoomStream.getTracks().forEach(function (t) { zoomPc.addTrack(t, zoomStream); });
+          zoomPc.ontrack = function (ev) {
+            if (ev.streams && ev.streams[0]) {
+              document.getElementById("zoomRemoteVideo").srcObject = ev.streams[0];
+            }
+          };
+
+          var snap = await roomRef.get();
+          if (!snap.exists || !snap.data().offer) {
+            zoomPc.onicecandidate = function (e) {
+              if (e.candidate) roomRef.collection("hostCandidates").add(e.candidate.toJSON());
+            };
+            var offer = await zoomPc.createOffer();
+            await zoomPc.setLocalDescription(offer);
+            await roomRef.set({ offer: { type: offer.type, sdp: offer.sdp }, answer: null });
+
+            roomRef.onSnapshot(async function (s) {
+              var d = s.data();
+              if (d && d.answer && !zoomPc.currentRemoteDescription) {
+                await zoomPc.setRemoteDescription(new RTCSessionDescription(d.answer));
+              }
+            });
+            roomRef.collection("guestCandidates").onSnapshot(function (s) {
+              s.docChanges().forEach(function (c) {
+                if (c.type === "added") zoomPc.addIceCandidate(new RTCIceCandidate(c.doc.data())).catch(function () {});
+              });
+            });
+          } else {
+            zoomPc.onicecandidate = function (e) {
+              if (e.candidate) roomRef.collection("guestCandidates").add(e.candidate.toJSON());
+            };
+            await zoomPc.setRemoteDescription(new RTCSessionDescription(snap.data().offer));
+            var answer = await zoomPc.createAnswer();
+            await zoomPc.setLocalDescription(answer);
+            await roomRef.update({ answer: { type: answer.type, sdp: answer.sdp } });
+
+            roomRef.collection("hostCandidates").onSnapshot(function (s) {
+              s.docChanges().forEach(function (c) {
+                if (c.type === "added") zoomPc.addIceCandidate(new RTCIceCandidate(c.doc.data())).catch(function () {});
+              });
+            });
+          }
+        }
+      } catch (err) {
+        alert("تعذر تشغيل الكاميرا/الميكروفون للاجتماع: " + err.message);
+      }
+    });
+
+    document.getElementById("btnZoomToggleMic").addEventListener("click", function () {
+      if (!zoomStream) return;
+      zoomMicEnabled = !zoomMicEnabled;
+      zoomStream.getAudioTracks().forEach(function (t) { t.enabled = zoomMicEnabled; });
+      this.textContent = zoomMicEnabled ? "🎙️ كتم الصوت" : "🔇 تشغيل الصوت";
+      this.classList.toggle("off", !zoomMicEnabled);
+    });
+
+    document.getElementById("btnZoomToggleCam").addEventListener("click", function () {
+      if (!zoomStream) return;
+      zoomCamEnabled = !zoomCamEnabled;
+      zoomStream.getVideoTracks().forEach(function (t) { t.enabled = zoomCamEnabled; });
+      this.textContent = zoomCamEnabled ? "📹 إيقاف الكاميرا" : "📷 تشغيل الكاميرا";
+      this.classList.toggle("off", !zoomCamEnabled);
+    });
+
+    document.getElementById("btnZoomShareScreen").addEventListener("click", async function () {
+      if (!navigator.mediaDevices.getDisplayMedia) return alert("متصفحك لا يدعم مشاركة الشاشة.");
+      try {
+        var screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+        var screenTrack = screenStream.getVideoTracks()[0];
+        document.getElementById("zoomLocalVideo").srcObject = screenStream;
+        if (zoomPc) {
+          var sender = zoomPc.getSenders().find(function (s) { return s.track && s.track.kind === "video"; });
+          if (sender) sender.replaceTrack(screenTrack);
+        }
+      } catch (e) {}
+    });
+
+    document.getElementById("btnZoomLeave").addEventListener("click", function () {
+      if (zoomStream) {
+        zoomStream.getTracks().forEach(function (t) { t.stop(); });
+        zoomStream = null;
+      }
+      if (zoomPc) { zoomPc.close(); zoomPc = null; }
+      document.getElementById("zoomLocalVideo").srcObject = null;
+      document.getElementById("zoomRemoteVideo").srcObject = null;
+      document.getElementById("zoomStatusText").textContent = "الحالة: خارج الاجتماع";
+    });
+
+    // ==========================================
+    // 4. AI توزيع الجداول من PDF (خاص بأدمن واحد فقط)
+    // ==========================================
+    document.getElementById("btnRunAiPdfParser").addEventListener("click", async function () {
+      var me = getActiveUserEmail();
+      if (!isAiAuthorizedAdmin(me)) {
+        return alert("عذراً، هذه الميزة متاحة حصرياً للأدمن المسؤول عن الجداول فقط!");
+      }
+      var fileInput = document.getElementById("aiPdfUploadInput");
+      var file = fileInput.files[0];
+      if (!file) return alert("اختر ملف PDF الخاص بالجداول أولاً!");
+
+      var statusEl = document.getElementById("aiProcessingStatus");
+      var previewEl = document.getElementById("aiExtractedPreview");
+      statusEl.textContent = "⏳ جاري قراءة ملف الـ PDF وتحليل الفصول والجداول بالذكاء الاصطناعي...";
+      previewEl.innerHTML = "";
+
+      try {
+        var arrayBuffer = await file.arrayBuffer();
+        var pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        var fullText = "";
+
+        for (var pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+          var page = await pdf.getPage(pageNum);
+          var textContent = await page.getTextContent();
+          var pageStrings = textContent.items.map(function (item) { return item.str; });
+          fullText += "\n--- صفحة " + pageNum + " ---\n" + pageStrings.join(" ");
+        }
+
+        // التعرف الذكي على رموز وأسماء الفصول (مثل 2B, 2 Prep D, 1A, 3C ...)
+        var classRegex = /\b([1-3]\s*(?:Prep|Sec|Prim)?\s*[A-F])\b/gi;
+        var matches = [];
+        var match;
+        while ((match = classRegex.exec(fullText)) !== null) {
+          matches.push({
+            rawLabel: match[1],
+            normalized: normalizeClassKey(match[1]),
+            index: match.index
+          });
+        }
+
+        if (matches.length === 0) {
+          statusEl.textContent = "⚠️ لم يتم العثور على رموز فصول واضحة داخل النص (تأكد أن الملف نصي وليس صورة ممسوحة).";
+          return;
+        }
+
+        var distributedCount = 0;
+        for (var i = 0; i < matches.length; i++) {
+          var startIdx = matches[i].index;
+          var endIdx = (i + 1 < matches.length) ? matches[i + 1].index : fullText.length;
+          var sectionText = fullText.slice(startIdx, endIdx).trim();
+          var classKey = matches[i].normalized;
+
+          if (db) {
+            await db.collection("class_schedules").doc(classKey).set({
+              scheduleText: "📋 جدول فصل " + classKey + " (تم استخراجه تلقائياً بواسطة AI):\n" + sectionText,
+              updatedAt: Date.now()
+            }, { merge: true });
+          }
+
+          var card = document.createElement("div");
+          card.className = "schedule-box";
+          card.innerHTML = "<strong>✅ تم إرسال الجدول إلى جروب فصل: " + classKey + "</strong><p style='font-size:13px; margin:6px 0 0;'>" + sectionText.slice(0, 260) + "...</p>";
+          previewEl.appendChild(card);
+          distributedCount++;
+        }
+
+        statusEl.textContent = "🎉 تم تحليل الملف بنجاح وتوزيع جداول (" + distributedCount + ") فصل على جروباتهم تلقائياً!";
+      } catch (err) {
+        statusEl.textContent = "❌ حدث خطأ أثناء قراءة الملف: " + err.message;
+      }
+    });
+
+    // ==========================================
+    // باقي دوال النظام (المستخدمين، التقييمات، الشات الخاص، المكالمات)
+    // ==========================================
     function fillSelectOptions(selectId, emails, placeholderText, currentViewerEmail) {
       var sel = document.getElementById(selectId);
       if (!sel) return;
@@ -576,7 +1472,7 @@
 
     function loadUsersLists(currentViewerEmail) {
       if (!db) return;
-      var viewer = (currentViewerEmail || (auth && auth.currentUser && auth.currentUser.email) || "").toLowerCase();
+      var viewer = (currentViewerEmail || getActiveUserEmail()).toLowerCase();
 
       var rosterEl = document.getElementById("adminsRosterText");
       if (rosterEl) {
@@ -610,7 +1506,7 @@
         fillSelectOptions("adminBanUserSelect", allEmails, "-- اختر مستخدم من القائمة أو اكتب إيميله بالأسفل --", viewer);
         fillSelectOptions("privateChatTargetSelect", allEmails, "-- اختر حساباً للتحدث معه في شات خاص --", viewer);
         fillSelectOptions("callTargetSelect", allEmails, "-- اختر حساباً للاتصال به صوت أو فيديو --", viewer);
-      });
+      }, function () {});
     }
 
     function checkAndSaveRole(user) {
@@ -688,19 +1584,26 @@
       }
 
       auth.onAuthStateChanged(function (user) {
+        if (!user) {
+          if (window.__bypassUserEmail) return;
+          document.getElementById("loginScreen").style.display = "flex";
+          document.getElementById("mainAppContent").style.display = "none";
+          document.getElementById("bannedScreen").style.display = "none";
+          return;
+        }
+
+        window.__bypassUserEmail = "";
         document.getElementById("loginScreen").style.display = "none";
         document.getElementById("mainAppContent").style.display = "none";
         document.getElementById("bannedScreen").style.display = "none";
-
-        if (!user) {
-          document.getElementById("loginScreen").style.display = "flex";
-          return;
-        }
 
         var email = user.email.toLowerCase();
         document.querySelectorAll(".user-email-display").forEach(function (el) {
           el.textContent = email;
         });
+
+        // إظهار تبويب الذكاء الاصطناعي حصرياً للأدمن المسؤول
+        document.getElementById("navAiBtn").style.display = isAiAuthorizedAdmin(email) ? "inline-block" : "none";
 
         db.collection("users").doc(email).get().then(function (docSnap) {
           var adminUser = isAdminEmail(email);
@@ -737,13 +1640,22 @@
 
           loadUsersLists(email);
           listenForIncomingCalls(email);
+          loadClassGroup("2 Prep B");
         });
       });
     }
 
     function logoutNow() {
+      window.__bypassUserEmail = "";
+      accountDrawer.classList.remove("open");
       hangupCall();
-      if (auth) auth.signOut();
+      if (auth && auth.currentUser) {
+        auth.signOut();
+      } else {
+        document.getElementById("mainAppContent").style.display = "none";
+        document.getElementById("bannedScreen").style.display = "none";
+        document.getElementById("loginScreen").style.display = "flex";
+      }
     }
     document.getElementById("btnLogoutMain").addEventListener("click", logoutNow);
     document.getElementById("btnLogoutBanned").addEventListener("click", logoutNow);
@@ -840,7 +1752,7 @@
           row.appendChild(delBtn);
           box.appendChild(row);
         });
-      });
+      }, function () {});
     }
 
     function setBanState(banned) {
@@ -857,7 +1769,7 @@
       db.collection("evaluations").doc(email).onSnapshot(function (docSnap) {
         document.getElementById("studentEvaluationBox").textContent =
           docSnap.exists ? docSnap.data().text : "لا يوجد تقييم أو درجة حالياً.";
-      });
+      }, function () {});
 
       db.collection("videos").orderBy("createdAt", "desc").onSnapshot(function (snap) {
         var list = document.getElementById("studentVideosList");
@@ -878,7 +1790,7 @@
           p.appendChild(a);
           list.appendChild(p);
         });
-      });
+      }, function () {});
     }
 
     var unsubscribePrivateChat = null;
@@ -897,19 +1809,19 @@
     }
 
     function openPrivateChatWith(targetEmail) {
-      if (!db || !auth || !auth.currentUser) return;
+      var me = getActiveUserEmail();
+      if (!db || !me) return;
       var cleanTarget = (targetEmail || "").trim().toLowerCase();
       if (!cleanTarget) return alert("اختر أو اكتب إيميل الشخص الآخر أولاً!");
       activePrivateTarget = cleanTarget;
       document.getElementById("privateChatTargetEmail").value = cleanTarget;
 
-      var roomId = buildPrivateRoomId(auth.currentUser.email, cleanTarget);
+      var roomId = buildPrivateRoomId(me, cleanTarget);
       if (unsubscribePrivateChat) unsubscribePrivateChat();
 
       unsubscribePrivateChat = db.collection("private_messages")
         .where("roomId", "==", roomId)
         .onSnapshot(function (snap) {
-          var me = auth.currentUser.email.toLowerCase();
           var items = [];
           snap.forEach(function (docSnap) {
             var d = docSnap.data();
@@ -951,7 +1863,7 @@
             box.appendChild(row);
           });
           box.scrollTop = box.scrollHeight;
-        });
+        }, function () {});
     }
 
     document.getElementById("btnOpenPrivateChat").addEventListener("click", function () {
@@ -959,13 +1871,13 @@
     });
 
     document.getElementById("btnSendPrivateMsg").addEventListener("click", function () {
-      if (!db || !auth || !auth.currentUser) return;
+      var me = getActiveUserEmail();
+      if (!db || !me) return;
       var target = (document.getElementById("privateChatTargetEmail").value || activePrivateTarget || "").trim().toLowerCase();
       var txt = document.getElementById("privateChatMsgInput").value.trim();
       if (!target) return alert("اختر أو اكتب إيميل الشخص الآخر أولاً!");
       if (!txt) return;
 
-      var me = auth.currentUser.email.toLowerCase();
       var customName = document.getElementById("privateChatSenderName").value.trim();
       var adminFixedName = getAdminName(me, me);
       var displayName = customName || (adminFixedName ? (adminFixedName + " — أدمن") : me.split("@")[0]);
@@ -1050,11 +1962,12 @@
             peerConnection.addIceCandidate(new RTCIceCandidate(change.doc.data())).catch(function () {});
           }
         });
-      });
+      }, function () {});
     }
 
     async function startCall(withVideo) {
-      if (!db || !auth || !auth.currentUser) return;
+      var me = getActiveUserEmail();
+      if (!db || !me) return;
       var target = document.getElementById("callTargetEmail").value.trim().toLowerCase();
       if (!target) return alert("اختر أو اكتب إيميل الشخص للاتصال به!");
 
@@ -1062,7 +1975,6 @@
         setCallStatus(withVideo ? "جاري تجهيز مكالمة الفيديو..." : "جاري تجهيز المكالمة الصوتية...");
         await setupLocalMedia(withVideo);
 
-        var me = auth.currentUser.email.toLowerCase();
         var callId = buildCallId(me, target);
         activeCallDocId = callId;
         var callRef = db.collection("calls").doc(callId);
@@ -1094,7 +2006,7 @@
             await peerConnection.setRemoteDescription(new RTCSessionDescription(d.answer));
             setCallStatus("متصل الآن مع " + target);
           }
-        });
+        }, function () {});
       } catch (err) {
         setCallStatus("تعذر بدء المكالمة: " + err.message);
       }
@@ -1119,7 +2031,7 @@
               setCallStatus("مكالمة واردة من " + callerLabel + (d.withVideo ? " (فيديو)" : " (صوتية)"));
             }
           });
-        });
+        }, function () {});
     }
 
     document.getElementById("btnAnswerCall").addEventListener("click", async function () {
@@ -1143,7 +2055,7 @@
           status: "connected"
         });
 
-        var myEmail = auth && auth.currentUser ? auth.currentUser.email : "";
+        var myEmail = getActiveUserEmail();
         var callerLabel = isHiddenFromOthers(info.caller, myEmail) ? "مستخدم" : info.caller;
         setCallStatus("متصل الآن مع " + callerLabel);
       } catch (err) {
